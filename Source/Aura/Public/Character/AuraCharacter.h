@@ -19,6 +19,10 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
+	/** Combat Interfact **/
+	virtual int32 GetPlayerLevel() override;
+	/** End Combat Interfact **/
+
 private:
 	virtual void InitAbilityActorInfo() override;
 };
