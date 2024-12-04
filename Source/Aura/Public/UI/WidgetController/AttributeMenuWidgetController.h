@@ -29,5 +29,5 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attribute Info")
 	TObjectPtr<UAttributeInfo> AttributeInfo;
-	
+
 };
