@@ -19,7 +19,6 @@
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates = true;
-
 	Spline = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
 }
 
@@ -96,47 +95,29 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void AAuraPlayerController::CursorTrace()
 {
-	FHitResult HitResult;
-	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 
-	if (!HitResult.bBlockingHit) {
+	if (!CursorHit.bBlockingHit) {
 		return;
 	}
 
 	LastActor = ThisActor;
-	ThisActor = HitResult.GetActor();
+	ThisActor = CursorHit.GetActor();
 
-	/**
-	* Line trace from custor to actor
-	* A. LastActor is null && ThisActor is null
-	*  - Do Nothing
-	* B. LastActor is null && ThisActor is not null
-	*  - Highlight ThisActor
-	* C. LastActor is not null && ThisActor is null
-	*  - Unhighlight LastActor
-	* D. LastActor is not null && ThisActor is not null
-	*  - Unhighlight LastActor
-	*  - Highlight ThisActor
-	*/
-
-	// Case A
 	if (LastActor == nullptr && ThisActor == nullptr) {
 		return;
 	}
 
-	// Case B
 	if (LastActor == nullptr && ThisActor != nullptr) {
 		ThisActor->HighlightActor();
 		return;
 	}
 
-	// Case C
 	if (LastActor != nullptr && ThisActor == nullptr) {
 		LastActor->UnhighlightActor();
 		return;
 	}
 
-	// Case D
 	if (LastActor != ThisActor) {
 		LastActor->UnhighlightActor();
 		ThisActor->HighlightActor();
@@ -180,7 +161,6 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					Spline->ClearSplinePoints();
 					for (const FVector& Point : NavigationPath->PathPoints) {
 						Spline->AddSplinePoint(Point, ESplineCoordinateSpace::World);
-						DrawDebugSphere(GetWorld(), Point, 50.f, 12, FColor::Green, false, 1.f);
 					}
 
 					CachedDestination = NavigationPath->PathPoints.Last();
@@ -215,10 +195,8 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	{
 		FollowTime += GetWorld()->GetDeltaSeconds();
 			
-		FHitResult Hit;
-
-		if(GetHitResultUnderCursor(ECC_Visibility, false, Hit)) {
-			CachedDestination = Hit.ImpactPoint;
+		if(CursorHit.bBlockingHit) {
+			CachedDestination = CursorHit.ImpactPoint;
 		}
 
 		if (APawn* ControlledPawn = GetPawn<APawn>()) {
