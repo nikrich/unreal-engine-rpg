@@ -8,9 +8,12 @@
 void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
 
+void UAuraProjectileSpell::SpawnProjectile()
+{
 	// Check if we are the server
-	bool bIsServver = HasAuthority(&ActivationInfo);
+	bool bIsServver = GetAvatarActorFromActorInfo()->HasAuthority();
 	if (!bIsServver) return;
 
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
@@ -30,10 +33,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 		// TODO - Give the Projectile a Gameplay Effect Spec for causing Damage.
 
+
 		Projectile->FinishSpawning(SpawnTransform);
 	}
-
-	
-
-
 }
