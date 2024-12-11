@@ -10,7 +10,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UAuraProjectileSpell::SpawnProjectile()
+void UAuraProjectileSpell::SpawnProjectile(FVector Destination)
 {
 	// Check if we are the server
 	bool bIsServver = GetAvatarActorFromActorInfo()->HasAuthority();
@@ -20,8 +20,12 @@ void UAuraProjectileSpell::SpawnProjectile()
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
 
+		// Calculate Diraction to Destination
+		const FVector Direction = (Destination - SocketLocation).GetSafeNormal();
+
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
+		SpawnTransform.SetRotation(Direction.ToOrientationQuat());
 
 		// TODO - Set the Projectile Rotation.
 
