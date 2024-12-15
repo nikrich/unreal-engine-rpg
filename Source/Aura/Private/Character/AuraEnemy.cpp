@@ -18,6 +18,7 @@ AAuraEnemy::AAuraEnemy()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>(TEXT("AttributeSet"));
+	AbilitySystemComponent->AddAttributeSetSubobject(AttributeSet.Get());
 }
 
 void AAuraEnemy::HighlightActor()
@@ -47,10 +48,20 @@ void AAuraEnemy::BeginPlay()
 
 void AAuraEnemy::InitAbilityActorInfo()
 {
-	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
 	InitializeDefaultAttributes();
+
+	auto AuraAttributes = AbilitySystemComponent->GetSet<UAuraAttributeSet>();
+	if (AuraAttributes)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AttributeSet found, Health: %f"), AuraAttributes->GetHealth());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("AttributeSet is NULL!"));
+	}
 }
 
 void AAuraEnemy::Tick(float DeltaTime)

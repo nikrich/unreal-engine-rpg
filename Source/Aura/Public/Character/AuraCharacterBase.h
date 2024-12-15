@@ -34,10 +34,10 @@ protected:
 
 	virtual FVector GetCombatSocketLocation() const;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadonly)
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadonly)
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	virtual void InitAbilityActorInfo();
