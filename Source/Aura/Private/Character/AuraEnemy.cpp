@@ -49,6 +49,8 @@ void AAuraEnemy::InitAbilityActorInfo()
 {
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	InitializeDefaultAttributes();
 }
 
 void AAuraEnemy::Tick(float DeltaTime)

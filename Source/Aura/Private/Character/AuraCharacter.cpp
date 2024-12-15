@@ -4,6 +4,7 @@
 #include <AbilitySystemComponent.h> // Add this include statement
 #include <Player/AuraPlayerController.h>
 #include <UI/HUD/AuraHUD.h>
+#include "AbilitySystem//AuraAttributeSet.h"
 #include <AbilitySystem/AuraAbilitySystemComponent.h>
 
 AAuraCharacter::AAuraCharacter()

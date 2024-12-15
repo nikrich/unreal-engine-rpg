@@ -4,10 +4,13 @@
 #include "Character/AuraCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include <AbilitySystem/AuraAbilitySystemComponent.h>
+#include <Aura/Aura.h>
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 
 	// Create the Weapon component and attach it to the RootComponent of the character
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
@@ -28,8 +31,7 @@ void AAuraCharacterBase::BeginPlay()
 
 FVector AAuraCharacterBase::GetCombatSocketLocation() const
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponSocketName); 
+	return GetMesh()->GetSocketLocation(WeaponSocketName);
 }
 
 void AAuraCharacterBase::InitAbilityActorInfo()
