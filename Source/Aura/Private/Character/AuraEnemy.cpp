@@ -4,8 +4,8 @@
 #include "Character/AuraEnemy.h"
 #include <AbilitySystem/AuraAbilitySystemComponent.h>
 #include <AbilitySystem/AuraAttributeSet.h>
-
-
+#include <Components/WidgetComponent.h>
+#include "UI/Widget/AuraUserWidget.h"
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -19,6 +19,9 @@ AAuraEnemy::AAuraEnemy()
 
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>(TEXT("AttributeSet"));
 	AbilitySystemComponent->AddAttributeSetSubobject(AttributeSet.Get());
+
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBar->SetupAttachment(RootComponent);
 }
 
 void AAuraEnemy::HighlightActor()
@@ -44,6 +47,26 @@ void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	InitAbilityActorInfo();
+
+	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject())) {
+		AuraUserWidget->SetWidgetController(this);
+	}
+
+	// Broadcast Health Changes to Blueprints to Update Health Bars
+	auto AttributeSetClass = TSubclassOf<UAuraAttributeSet>(UAuraAttributeSet::StaticClass());
+
+	if (const UAuraAttributeSet* AuraAttributes = Cast<UAuraAttributeSet>(AbilitySystemComponent->GetAttributeSet(AttributeSetClass))) {
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
+			OnHealthChanged.Broadcast(Data.NewValue);
+		});
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
+			OnMaxHealthChanged.Broadcast(Data.NewValue);
+		});
+
+		OnHealthChanged.Broadcast(AuraAttributes->GetHealth());
+		OnMaxHealthChanged.Broadcast(AuraAttributes->GetMaxHealth());
+	}
 }
 
 void AAuraEnemy::InitAbilityActorInfo()
