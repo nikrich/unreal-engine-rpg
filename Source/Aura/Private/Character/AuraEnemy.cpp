@@ -6,6 +6,7 @@
 #include <AbilitySystem/AuraAttributeSet.h>
 #include <Components/WidgetComponent.h>
 #include "UI/Widget/AuraUserWidget.h"
+#include <AbilitySystem/AuraAbilitySystemLibrary.h>
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -54,8 +55,19 @@ void AAuraEnemy::BeginPlay()
 
 	// Broadcast Health Changes to Blueprints to Update Health Bars
 	auto AttributeSetClass = TSubclassOf<UAuraAttributeSet>(UAuraAttributeSet::StaticClass());
+	
 
 	if (const UAuraAttributeSet* AuraAttributes = Cast<UAuraAttributeSet>(AbilitySystemComponent->GetAttributeSet(AttributeSetClass))) {
+		float StrengthAttribute = AuraAttributes->GetStrengthAttribute().GetNumericValue(AuraAttributes);
+		float IntelligenceAttribute = AuraAttributes->GetIntelligenceAttribute().GetNumericValue(AuraAttributes);
+		float ResilienceAttribute = AuraAttributes->GetResilienceAttribute().GetNumericValue(AuraAttributes);
+		float VigorAttribute = AuraAttributes->GetVigorAttribute().GetNumericValue(AuraAttributes);
+
+		UE_LOG(LogTemp, Warning, TEXT("Strength: %f"), StrengthAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Intelligence: %f"), IntelligenceAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Resilience: %f"), ResilienceAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Vigor: %f"), VigorAttribute);
+
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
 			OnHealthChanged.Broadcast(Data.NewValue);
 		});
@@ -76,15 +88,11 @@ void AAuraEnemy::InitAbilityActorInfo()
 
 	InitializeDefaultAttributes();
 
-	auto AuraAttributes = AbilitySystemComponent->GetSet<UAuraAttributeSet>();
-	if (AuraAttributes)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AttributeSet found, Health: %f"), AuraAttributes->GetHealth());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("AttributeSet is NULL!"));
-	}
+}
+
+void AAuraEnemy::InitializeDefaultAttributes() const
+{
+	UAuraAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 }
 
 void AAuraEnemy::Tick(float DeltaTime)

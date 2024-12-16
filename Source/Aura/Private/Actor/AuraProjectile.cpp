@@ -11,6 +11,7 @@
 #include <AbilitySystemBlueprintLibrary.h>
 #include <AbilitySystemComponent.h>
 #include <AbilitySystem/AuraAttributeSet.h>
+#include "AbilitySystem/Abilities/AuraGameplayAbility.h"
 
 // Sets default values
 AAuraProjectile::AAuraProjectile()
@@ -29,7 +30,7 @@ AAuraProjectile::AAuraProjectile()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->InitialSpeed = 1000.f;
-	ProjectileMovement->MaxSpeed = 1000.f;
+	ProjectileMovement->MaxSpeed = 2000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 
 }
@@ -58,6 +59,11 @@ void AAuraProjectile::Destroyed()
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// See if the projectile hit the casting actor
+	if (OtherActor == AbilityActorInfo.AvatarActor) {
+		return;
+	}
+
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 	LoopingSoundComponent->Stop();
@@ -75,6 +81,10 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 			}
 
 			TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+		}
+
+		if (EndAbilityHandle.IsBound()) {
+			EndAbilityHandle.Execute(AbilitySpecHandle, &AbilityActorInfo, AbilityActivationInfo, true, false);
 		}
 
 		Destroy();

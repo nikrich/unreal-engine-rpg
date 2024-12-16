@@ -5,11 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameplayEffectTypes.h"
+#include "AbilitySystemComponent.h"
 #include "AuraProjectile.generated.h"
+
+DECLARE_DELEGATE_FiveParams(FEndAbilitySignature, FGameplayAbilitySpecHandle, const FGameplayAbilityActorInfo*, FGameplayAbilityActivationInfo, bool, bool)
 
 class USphereComponent;
 class UProjectileMovementComponent;
 class UNiagaraSystem;
+class UAuraGameplayAbility;
 
 UCLASS()
 class AURA_API AAuraProjectile : public AActor
@@ -25,6 +29,18 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Effects")
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Effects")
+	FGameplayAbilitySpecHandle AbilitySpecHandle;
+
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Effects")
+	FGameplayAbilityActorInfo AbilityActorInfo;
+
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Effects")
+	FGameplayAbilityActivationInfo AbilityActivationInfo;
+
+
+	FEndAbilitySignature EndAbilityHandle;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
@@ -32,6 +48,7 @@ protected:
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	
 
 private:
 

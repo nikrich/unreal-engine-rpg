@@ -42,7 +42,15 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 
 		const UAbilitySystemComponent* SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 		const FGameplayEffectSpecHandle SpecHandle = SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceAbilitySystemComponent->MakeEffectContext());
+		const FGameplayAbilitySpecHandle AbilityHandle = GetCurrentAbilitySpecHandle();
+
+		// Set Meta Data on Projectile in order to apply damage
+		// and to end the ability when the projectile hits something
 		Projectile->DamageEffectSpecHandle = SpecHandle;
+		Projectile->AbilitySpecHandle = AbilityHandle;
+		Projectile->AbilityActorInfo = GetActorInfo();
+		Projectile->AbilityActivationInfo = CurrentActivationInfo;
+		Projectile->EndAbilityHandle.BindUObject(this, &UAuraProjectileSpell::EndAbility);
 
 		Projectile->FinishSpawning(SpawnTransform);
 	}
