@@ -6,6 +6,8 @@
 #include <AbilitySystem/AuraAttributeSet.h>
 #include <Components/WidgetComponent.h>
 #include "UI/Widget/AuraUserWidget.h"
+#include "AuraGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include <AbilitySystem/AuraAbilitySystemLibrary.h>
 
 AAuraEnemy::AAuraEnemy()
@@ -44,10 +46,17 @@ void AAuraEnemy::UnhighlightActor()
 	bIsHighlighted = false;
 }
 
+void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0 : BaseWalkSpeed;
+}
+
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	InitAbilityActorInfo();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject())) {
 		AuraUserWidget->SetWidgetController(this);
@@ -56,7 +65,6 @@ void AAuraEnemy::BeginPlay()
 	// Broadcast Health Changes to Blueprints to Update Health Bars
 	auto AttributeSetClass = TSubclassOf<UAuraAttributeSet>(UAuraAttributeSet::StaticClass());
 	
-
 	if (const UAuraAttributeSet* AuraAttributes = Cast<UAuraAttributeSet>(AbilitySystemComponent->GetAttributeSet(AttributeSetClass))) {
 		float StrengthAttribute = AuraAttributes->GetStrengthAttribute().GetNumericValue(AuraAttributes);
 		float IntelligenceAttribute = AuraAttributes->GetIntelligenceAttribute().GetNumericValue(AuraAttributes);
@@ -75,6 +83,8 @@ void AAuraEnemy::BeginPlay()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
 			OnMaxHealthChanged.Broadcast(Data.NewValue);
 		});
+
+		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::HitReactTagChanged);
 
 		OnHealthChanged.Broadcast(AuraAttributes->GetHealth());
 		OnMaxHealthChanged.Broadcast(AuraAttributes->GetMaxHealth());

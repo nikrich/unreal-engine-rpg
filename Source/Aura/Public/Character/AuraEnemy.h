@@ -11,6 +11,8 @@
 
 class UWidgetComponent;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(F, const FGameplayTag, int32);
+
 /**
  * 
  */
@@ -41,6 +43,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Aura Enemy")
 	FOnAttributeChangedSignature OnMaxHealthChanged;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Aura Enemy")
+	bool bHitReacting = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Aura Enemy")
+	float BaseWalkSpeed = 250.f;
+
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
@@ -54,5 +64,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chacracter Class Defaults")
 	TObjectPtr<UWidgetComponent> HealthBar;
-
 };

@@ -13,7 +13,6 @@ DECLARE_DELEGATE_FiveParams(FEndAbilitySignature, FGameplayAbilitySpecHandle, co
 class USphereComponent;
 class UProjectileMovementComponent;
 class UNiagaraSystem;
-class UAuraGameplayAbility;
 
 UCLASS()
 class AURA_API AAuraProjectile : public AActor
