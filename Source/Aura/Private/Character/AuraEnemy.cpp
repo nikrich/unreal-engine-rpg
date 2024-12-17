@@ -95,7 +95,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 void AAuraEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
-
+	OnDeath.Broadcast();
 	Super::Die();
 }
 

@@ -43,6 +43,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Aura Enemy")
 	FOnAttributeChangedSignature OnMaxHealthChanged;
 
+	UPROPERTY(BlueprintAssignable, Category = "Aura Enemy")
+	FOnDeath OnDeath;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Aura Enemy")
 	bool bHitReacting = false;
 
