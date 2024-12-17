@@ -7,6 +7,7 @@
 #include <Net/UnrealNetwork.h>
 #include <AbilitySystemBlueprintLibrary.h>
 #include "AuraGameplayTags.h"
+#include <Interaction/CombatInterface.h>
 
 UAuraAttributeSet::UAuraAttributeSet()
 {	
@@ -105,13 +106,24 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f);
 
-		if (LocalIncomingDamage > 0.f) {
+		if (LocalIncomingDamage > 0.f) 
+		{
 			const float Newhealth = GetHealth() - LocalIncomingDamage;
 			SetHealth(FMath::Clamp(Newhealth, 0.f, GetMaxHealth()));
 
 			const bool bFatal = Newhealth <= 0.f;
-			
-			if (!bFatal) {
+
+			if (bFatal) 
+			{
+				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+
+				if (CombatInterface) 
+				{
+					CombatInterface->Die();
+				}
+			}
+			else 
+			{
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
 				Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);

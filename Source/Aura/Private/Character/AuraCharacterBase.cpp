@@ -4,6 +4,7 @@
 #include "Character/AuraCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include <AbilitySystem/AuraAbilitySystemComponent.h>
+#include "Components/CapsuleComponent.h"
 #include <Aura/Aura.h>
 
 AAuraCharacterBase::AAuraCharacterBase()
@@ -23,10 +24,35 @@ UAbilitySystemComponent* AAuraCharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void AAuraCharacterBase::Die()
+{
+	if (Weapon) {
+		Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	}
+
+	MulticastHandleDeath();
+}
+
+void AAuraCharacterBase::MulticastHandleDeath_Implementation()
+{
+	if (Weapon) {
+		Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		Weapon->SetSimulatePhysics(true);
+		Weapon->SetEnableGravity(true);
+	}
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Dissolve();
+}
+
 void AAuraCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 FVector AAuraCharacterBase::GetCombatSocketLocation() const
@@ -64,4 +90,35 @@ void AAuraCharacterBase::AddCharacterAbilities()
 	if (!HasAuthority()) return;
 
 	AuraAbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
+}
+
+void AAuraCharacterBase::Dissolve()
+{
+	// Character
+	if (IsValid(DissolveMaterialInstance)) 
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+
+		for (int32 i = 0; i < GetMesh()->GetMaterials().Max(); i++) 
+		{
+			GetMesh()->SetMaterial(i, DynamicMatInst);
+		}
+
+		StartDissolveTimeline(DynamicMatInst);
+	}
+
+	// Character Weapon
+	if (!Weapon) return;
+
+	if (IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
+
+		for (int32 i = 0; i < GetMesh()->GetMaterials().Max(); i++)
+		{
+			Weapon->SetMaterial(i, DynamicMatInst);
+		}
+
+		StartWeaponDissolveTimeline(DynamicMatInst);
+	}
 }
