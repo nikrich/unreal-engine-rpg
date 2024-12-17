@@ -24,7 +24,9 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
-	virtual UAnimMontage* GetHitReactMontage_Implementation() const { return HitReactMontage; }
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override { return HitReactMontage; }
+
+	virtual void Die() override;
 
 protected:
 	virtual void BeginPlay() override;

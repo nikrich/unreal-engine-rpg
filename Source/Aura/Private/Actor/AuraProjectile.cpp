@@ -61,6 +61,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 {
 	// See if the projectile hit the casting actor
 	if (OtherActor == AbilityActorInfo.AvatarActor) {
+		bHit = true;
 		return;
 	}
 

@@ -27,6 +27,46 @@ AAuraEnemy::AAuraEnemy()
 	HealthBar->SetupAttachment(RootComponent);
 }
 
+void AAuraEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	InitAbilityActorInfo();
+	UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+
+	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject())) {
+		AuraUserWidget->SetWidgetController(this);
+	}
+
+	// Broadcast Health Changes to Blueprints to Update Health Bars
+	auto AttributeSetClass = TSubclassOf<UAuraAttributeSet>(UAuraAttributeSet::StaticClass());
+
+	if (const UAuraAttributeSet* AuraAttributes = Cast<UAuraAttributeSet>(AbilitySystemComponent->GetAttributeSet(AttributeSetClass))) {
+		float StrengthAttribute = AuraAttributes->GetStrengthAttribute().GetNumericValue(AuraAttributes);
+		float IntelligenceAttribute = AuraAttributes->GetIntelligenceAttribute().GetNumericValue(AuraAttributes);
+		float ResilienceAttribute = AuraAttributes->GetResilienceAttribute().GetNumericValue(AuraAttributes);
+		float VigorAttribute = AuraAttributes->GetVigorAttribute().GetNumericValue(AuraAttributes);
+
+		UE_LOG(LogTemp, Warning, TEXT("Strength: %f"), StrengthAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Intelligence: %f"), IntelligenceAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Resilience: %f"), ResilienceAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Vigor: %f"), VigorAttribute);
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
+			OnHealthChanged.Broadcast(Data.NewValue);
+			});
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
+			OnMaxHealthChanged.Broadcast(Data.NewValue);
+			});
+
+		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::HitReactTagChanged);
+
+		OnHealthChanged.Broadcast(AuraAttributes->GetHealth());
+		OnMaxHealthChanged.Broadcast(AuraAttributes->GetMaxHealth());
+	}
+}
+
 void AAuraEnemy::HighlightActor()
 {
 	// Set the custom depth stencil value to 1
@@ -50,45 +90,6 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0 : BaseWalkSpeed;
-}
-
-void AAuraEnemy::BeginPlay()
-{
-	Super::BeginPlay();
-	InitAbilityActorInfo();
-	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-
-	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject())) {
-		AuraUserWidget->SetWidgetController(this);
-	}
-
-	// Broadcast Health Changes to Blueprints to Update Health Bars
-	auto AttributeSetClass = TSubclassOf<UAuraAttributeSet>(UAuraAttributeSet::StaticClass());
-	
-	if (const UAuraAttributeSet* AuraAttributes = Cast<UAuraAttributeSet>(AbilitySystemComponent->GetAttributeSet(AttributeSetClass))) {
-		float StrengthAttribute = AuraAttributes->GetStrengthAttribute().GetNumericValue(AuraAttributes);
-		float IntelligenceAttribute = AuraAttributes->GetIntelligenceAttribute().GetNumericValue(AuraAttributes);
-		float ResilienceAttribute = AuraAttributes->GetResilienceAttribute().GetNumericValue(AuraAttributes);
-		float VigorAttribute = AuraAttributes->GetVigorAttribute().GetNumericValue(AuraAttributes);
-
-		UE_LOG(LogTemp, Warning, TEXT("Strength: %f"), StrengthAttribute);
-		UE_LOG(LogTemp, Warning, TEXT("Intelligence: %f"), IntelligenceAttribute);
-		UE_LOG(LogTemp, Warning, TEXT("Resilience: %f"), ResilienceAttribute);
-		UE_LOG(LogTemp, Warning, TEXT("Vigor: %f"), VigorAttribute);
-
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
-			OnHealthChanged.Broadcast(Data.NewValue);
-		});
-
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
-			OnMaxHealthChanged.Broadcast(Data.NewValue);
-		});
-
-		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::HitReactTagChanged);
-
-		OnHealthChanged.Broadcast(AuraAttributes->GetHealth());
-		OnMaxHealthChanged.Broadcast(AuraAttributes->GetMaxHealth());
-	}
 }
 
 void AAuraEnemy::InitAbilityActorInfo()

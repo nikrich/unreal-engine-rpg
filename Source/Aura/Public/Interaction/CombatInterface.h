@@ -30,7 +30,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimMontage* GetHitReactMontage();
 
-protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Event")
-	void SetWarpingTarget(const FVector& FacingLocation); 
+	void SetWarpingTarget(const FVector& FacingLocation);
+
+	virtual void Die() = 0;
 };
