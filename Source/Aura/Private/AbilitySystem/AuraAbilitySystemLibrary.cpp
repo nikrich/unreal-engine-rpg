@@ -49,8 +49,7 @@ UAttributeMenuWidgetController* UAuraAbilitySystemLibrary::GetAttributeMenuWidge
 
 void UAuraAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* AbilitySystemComponent)
 {
-	if (AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject))) {
-		UCharacterClassInfo* CharacterClassInfo = AuraGameMode->CharacterClassInfo;
+		UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
 
 		check(CharacterClassInfo);
 
@@ -77,20 +76,25 @@ void UAuraAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 		VitalAttributesContextHandle.Get()->AddSourceObject(AvatarActor);
 		const FGameplayEffectSpecHandle VitalAttributeSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, Level, VitalAttributesContextHandle);
 		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get());
-	}
-
 }
 
 void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent)
 {
-	if (AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject))) {
-		UCharacterClassInfo* CharacterClassInfo = AuraGameMode->CharacterClassInfo;
-
+		UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
 		check(CharacterClassInfo);
 
 		for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities) {
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
 			AbilitySystemComponent->GiveAbility(AbilitySpec);
 		}
+}
+
+UCharacterClassInfo* UAuraAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+	if (AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject))) 
+	{
+		return AuraGameMode->CharacterClassInfo;
 	}
+
+	return nullptr;
 }
