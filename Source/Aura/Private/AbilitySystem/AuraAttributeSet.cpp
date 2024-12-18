@@ -8,6 +8,8 @@
 #include <AbilitySystemBlueprintLibrary.h>
 #include "AuraGameplayTags.h"
 #include <Interaction/CombatInterface.h>
+#include <Kismet/GameplayStatics.h>
+#include <Player/AuraPlayerController.h>
 
 UAuraAttributeSet::UAuraAttributeSet()
 {	
@@ -128,9 +130,23 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
 				Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
 			}
+
+			ShowFloatingText(Props, LocalIncomingDamage);
 		}
 	}
 }
+
+void UAuraAttributeSet::ShowFloatingText(const FEffectProperties Props, float Damage) const
+{
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		if (AAuraPlayerController* PlayerController = Cast<AAuraPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		{
+			PlayerController->ShowDamageNumber(Damage, Props.TargetCharacter);
+		}
+	}
+}
+
 
 /*
  * Vital Attributes

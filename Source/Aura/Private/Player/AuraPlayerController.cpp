@@ -11,6 +11,8 @@
 #include <AbilitySystemBlueprintLibrary.h>
 #include <NavigationPath.h>
 #include <NavigationSystem.h>
+#include "GameFramework/Character.h"
+#include "UI/Widget//DamageTextComponent.h"
 
 /**
  * Constructor for the AuraPlayerController class.
@@ -28,6 +30,19 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 
 	CursorTrace();
 	AutoRun();
+}
+
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharcter)
+{
+	if (IsValid(TargetCharcter) && DamageTextComponentClass)
+	{
+		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharcter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharcter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageText->SetDamageText(DamageAmount);
+
+	}
 }
 
 /**
