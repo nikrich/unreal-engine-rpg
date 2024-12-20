@@ -141,7 +141,8 @@ void AAuraPlayerController::CursorTrace()
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_RMB)) {
+	// If attacking or running, stop the auto run
+	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_RMB)) {
 		bTargeting = ThisActor ? true : false;
 		bAutoRunning = false;
 	}
