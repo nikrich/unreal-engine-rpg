@@ -26,10 +26,10 @@ public:
 
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override { return HitReactMontage; }
 
-	virtual void Die() override;
+	virtual void Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit) override;
 
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath();
+	virtual void MulticastHandleDeath(FVector ImpactVector, bool bBlocked, bool bCriticalHit);
 
 protected:
 	virtual void BeginPlay() override;
@@ -87,4 +87,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	TObjectPtr<USoundBase> DeathSoundNormal;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	TObjectPtr<USoundBase> DeathSoundCriticalHit;
 };

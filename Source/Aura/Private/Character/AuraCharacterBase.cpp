@@ -6,6 +6,7 @@
 #include <AbilitySystem/AuraAbilitySystemComponent.h>
 #include "Components/CapsuleComponent.h"
 #include <Aura/Aura.h>
+#include <Kismet/GameplayStatics.h>
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -24,16 +25,16 @@ UAbilitySystemComponent* AAuraCharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void AAuraCharacterBase::Die()
+void AAuraCharacterBase::Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit)
 {
 	if (Weapon) {
 		Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	}
 
-	MulticastHandleDeath();
+	MulticastHandleDeath(ImpactVector, bBlocked, bCriticalHit);
 }
 
-void AAuraCharacterBase::MulticastHandleDeath_Implementation()
+void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVector, bool bBlocked, bool bCriticalHit)
 {
 	if (Weapon) {
 		Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -43,8 +44,32 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
+	GetMesh()->WakeAllRigidBodies();
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+	// Calculate the force of the impact based on the type of hit
+	// If the hit was blocked, the force is halved
+	// If the hit was a critical hit, the force is doubled
+
+	float ForceMagnitude = 200000;
+	ForceMagnitude *= bBlocked ? 0.5f : 1.f;
+	ForceMagnitude *= bCriticalHit ? 5.f : 1.f;
+
+	FVector VectorForce = ImpactVector * ForceMagnitude;
+	GetMesh()->AddImpulse(VectorForce);
+
+	// Play Death Sound
+	// If the hit was a critical hit, play the critical hit sound
+
+	if(bCriticalHit)
+	{
+		if (DeathSoundCriticalHit) UGameplayStatics::PlaySoundAtLocation(this, DeathSoundCriticalHit, GetActorLocation());
+	}
+	else
+	{
+		if (DeathSoundNormal) UGameplayStatics::PlaySoundAtLocation(this, DeathSoundNormal, GetActorLocation());
+	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();

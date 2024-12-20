@@ -33,5 +33,5 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Event")
 	void SetWarpingTarget(const FVector& FacingLocation);
 
-	virtual void Die() = 0;
+	virtual void Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit) = 0;
 };

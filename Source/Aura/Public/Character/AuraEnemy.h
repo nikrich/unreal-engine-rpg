@@ -57,7 +57,7 @@ public:
 
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
-	virtual void Die() override;
+	virtual void Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit) override;
 
 protected:
 	virtual void BeginPlay() override;

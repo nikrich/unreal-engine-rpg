@@ -10,6 +10,7 @@
 #include <Interaction/CombatInterface.h>
 #include <Kismet/GameplayStatics.h>
 #include <Player/AuraPlayerController.h>
+#include <AbilitySystem/AuraAbilitySystemLibrary.h>
 
 UAuraAttributeSet::UAuraAttributeSet()
 {	
@@ -113,6 +114,9 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			const float Newhealth = GetHealth() - LocalIncomingDamage;
 			SetHealth(FMath::Clamp(Newhealth, 0.f, GetMaxHealth()));
 
+			bool bBlocked = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+			bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+
 			const bool bFatal = Newhealth <= 0.f;
 
 			if (bFatal) 
@@ -121,7 +125,18 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 				if (CombatInterface) 
 				{
-					CombatInterface->Die();
+					// Where the ability is going to
+					AActor* TargetActor = Props.TargetAvatarActor.Get();
+					// Where the ability is coming from
+					AActor* SourceActor = Props.SourceAvatarActor.Get();
+
+					// Calculate andle of impact and apply impulse
+					if (TargetActor && SourceActor)
+					{
+						FVector ImpactVector = TargetActor->GetActorLocation() - SourceActor->GetActorLocation();
+						ImpactVector.Normalize(); 
+						CombatInterface->Die(ImpactVector, bBlocked, bCriticalHit);
+					}
 				}
 			}
 			else 
@@ -130,19 +145,19 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
 				Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
 			}
-
-			ShowFloatingText(Props, LocalIncomingDamage);
+			
+			ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
 		}
 	}
 }
 
-void UAuraAttributeSet::ShowFloatingText(const FEffectProperties Props, float Damage) const
+void UAuraAttributeSet::ShowFloatingText(const FEffectProperties Props, float Damage, bool isBlockingHit, bool bIsCriticalHit) const
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
 		if (AAuraPlayerController* PlayerController = Cast<AAuraPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
 		{
-			PlayerController->ShowDamageNumber(Damage, Props.TargetCharacter);
+			PlayerController->ShowDamageNumber(Damage, Props.TargetCharacter, isBlockingHit, bIsCriticalHit);
 		}
 	}
 }
