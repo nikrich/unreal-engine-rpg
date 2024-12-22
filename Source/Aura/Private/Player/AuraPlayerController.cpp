@@ -21,15 +21,13 @@
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates = true;
-	Spline = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
 }
 
 void AAuraPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	CursorTrace();
-	AutoRun();
+	LineTrace();
 }
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharcter, bool isBlockingHit, bool bIsCriticalHit)
@@ -64,13 +62,13 @@ void AAuraPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(AuraContext, 0);
 	}
 
-	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Default;
-
-	FInputModeGameAndUI InputModeData;
+	/*FInputModeGameAndUI InputModeData;
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputModeData.SetHideCursorDuringCapture(false);
 	SetInputMode(InputModeData);
+
+	bShowMouseCursor = true;
+	DefaultMouseCursor = EMouseCursor::Default;*/
 }
 
 /**
@@ -83,6 +81,7 @@ void AAuraPlayerController::SetupInputComponent()
 
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Look);
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -108,16 +107,57 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 	}
 }
 
-void AAuraPlayerController::CursorTrace()
+void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 {
-	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
+		FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 
-	if (!CursorHit.bBlockingHit) {
+		FRotator TargetRotation = GetControlRotation();
+		TargetRotation.Yaw += LookAxisVector.X * Sensitivity;
+		TargetRotation.Pitch = FMath::Clamp(TargetRotation.Pitch - LookAxisVector.Y * Sensitivity, -80.0f, 80.0f);
+
+		ForwardVector = FRotationMatrix(TargetRotation).GetUnitAxis(EAxis::X);
+
+		// Smoothly interpolate the rotation
+		FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), TargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+		SetControlRotation(SmoothedRotation);
+	}
+}
+
+void AAuraPlayerController::LineTrace()
+{
+	// Perform Line Trace for Forward Vector
+	FVector Start = PlayerCameraManager->GetCameraLocation();
+	FVector End = Start + (ForwardVector * LineTraceDistance);
+
+	// Draw Debug Line
+	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1.f);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(GetPawn());
+	QueryParams.AddIgnoredActor(this);
+
+	// Perform Line Trace
+	GetWorld()->LineTraceSingleByChannel(LineTraceHit, Start, End, ECC_Visibility, QueryParams);
+
+	if (!LineTraceHit.bBlockingHit) {
+
+		if (LastActor != nullptr) {
+			LastActor->UnhighlightActor();
+			LastActor = nullptr;
+		}
+
+		if (ThisActor != nullptr) {
+			ThisActor->UnhighlightActor();
+			ThisActor = nullptr;
+		}
+
 		return;
 	}
 
 	LastActor = ThisActor;
-	ThisActor = CursorHit.GetActor();
+	ThisActor = LineTraceHit.GetActor();
 
 	if (LastActor == nullptr && ThisActor == nullptr) {
 		return;
@@ -137,88 +177,26 @@ void AAuraPlayerController::CursorTrace()
 		LastActor->UnhighlightActor();
 		ThisActor->HighlightActor();
 	}
+
+	bTargeting = ThisActor ? true : false;
 }
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	// If attacking or running, stop the auto run
-	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_RMB)) {
-		bTargeting = ThisActor ? true : false;
-		bAutoRunning = false;
-	}
-
+	
 }
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_RMB)) {
-		if (GetAuraAbilitySystemComponent()) {
-			GetAuraAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
-		}
-		return;
-	}
-
-	// RMB is Pressed
-
-	if (bTargeting)
-	{
-		if (GetAuraAbilitySystemComponent()) {
-			GetAuraAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
-		}
-	}
-	else
-	{
-		APawn* ControlledPawn = GetPawn<APawn>();
-
-		if (FollowTime <= ShortPressThreshold && ControlledPawn) {
-			
-			if (auto* NavigationPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination)) {
-				if (NavigationPath->PathPoints.Num() > 1) {
-					Spline->ClearSplinePoints();
-					for (const FVector& Point : NavigationPath->PathPoints) {
-						Spline->AddSplinePoint(Point, ESplineCoordinateSpace::World);
-					}
-
-					CachedDestination = NavigationPath->PathPoints.Last();
-					bAutoRunning = true;
-				}
-			}
-		}
-
-		FollowTime = 0.f;
-		bTargeting = false;
+	if (GetAuraAbilitySystemComponent()) {
+		GetAuraAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
 	}
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_RMB)) {
-		if (GetAuraAbilitySystemComponent()) {
-			GetAuraAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
-		}
-		return;
-	}
-
-	// RMB is Pressed
-
-	if (bTargeting) 
-	{
-		if (GetAuraAbilitySystemComponent()) {
-			GetAuraAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
-		}
-	}
-	else
-	{
-		FollowTime += GetWorld()->GetDeltaSeconds();
-			
-		if(CursorHit.bBlockingHit) {
-			CachedDestination = CursorHit.ImpactPoint;
-		}
-
-		if (APawn* ControlledPawn = GetPawn<APawn>()) {
-			const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-			ControlledPawn->AddMovementInput(WorldDirection);
-		}
+	if (GetAuraAbilitySystemComponent()) {
+		GetAuraAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 	}
 }
 
@@ -229,23 +207,4 @@ UAuraAbilitySystemComponent* AAuraPlayerController::GetAuraAbilitySystemComponen
 	}
 
 	return AbilitySystemComponent;
-}
-
-void AAuraPlayerController::AutoRun()
-{
-	if (!bAutoRunning) {
-		return;
-	}
-
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
-		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
-		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
-		ControlledPawn->AddMovementInput(Direction);
-
-		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
-
-		if (DistanceToDestination <= AutoRunAcceptanceRadius) {
-			bAutoRunning = false;
-		}
-	}
 }

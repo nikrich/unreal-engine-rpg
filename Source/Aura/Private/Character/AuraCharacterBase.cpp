@@ -34,6 +34,11 @@ void AAuraCharacterBase::Die(FVector ImpactVector, bool bBlocked, bool bCritical
 	MulticastHandleDeath(ImpactVector, bBlocked, bCriticalHit);
 }
 
+FVector AAuraCharacterBase::GetForwardVector() const
+{
+	return FVector();
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVector, bool bBlocked, bool bCriticalHit)
 {
 	if (Weapon) {
@@ -54,7 +59,7 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVecto
 
 	float ForceMagnitude = 200000;
 	ForceMagnitude *= bBlocked ? 0.5f : 1.f;
-	ForceMagnitude *= bCriticalHit ? 5.f : 1.f;
+	ForceMagnitude *= bCriticalHit ? 2.f : 1.f;
 
 	FVector VectorForce = ImpactVector * ForceMagnitude;
 	GetMesh()->AddImpulse(VectorForce);

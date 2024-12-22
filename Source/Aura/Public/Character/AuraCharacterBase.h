@@ -28,6 +28,8 @@ public:
 
 	virtual void Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit) override;
 
+	virtual FVector GetForwardVector() const override;
+
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(FVector ImpactVector, bool bBlocked, bool bCriticalHit);
 
