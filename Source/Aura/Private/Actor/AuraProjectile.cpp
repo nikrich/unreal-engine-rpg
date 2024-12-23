@@ -5,13 +5,13 @@
 #include <GameFramework/ProjectileMovementComponent.h>
 #include <Components/SphereComponent.h>
 #include <Kismet/GameplayStatics.h>
-#include "../../../../../../Program Files/Epic Games/UE_5.2/Engine/Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include <Aura/Aura.h>
 #include <AbilitySystemBlueprintLibrary.h>
 #include <AbilitySystemComponent.h>
 #include <AbilitySystem/AuraAttributeSet.h>
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include <NiagaraFunctionLibrary.h>
 
 // Sets default values
 AAuraProjectile::AAuraProjectile()
@@ -78,7 +78,6 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 			if (MyAttributeSet)
 			{
 				float Health = MyAttributeSet->GetHealth();
-				UE_LOG(LogTemp, Log, TEXT("Health: %f, Stamina: %f"), Health);
 			}
 
 			TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
