@@ -77,8 +77,20 @@ FVector AAuraCharacter::GetForwardVector() const
 void AAuraCharacter::OnMovementModeChanged(EMovementMode PrevMode, uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PrevMode, PreviousCustomMode);
-	
-	bIsJumping = GetCharacterMovement()->MovementMode == MOVE_Falling;
+
+	// Landed
+	if (GetCharacterMovement()->MovementMode == MOVE_Walking) {
+		SetHasLanded(true);
+		SetIsJumping(false);
+
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, this, &AAuraCharacter::HasLandedDelayedFunction, 0.3f, false);
+	}
+}
+
+void AAuraCharacter::HasLandedDelayedFunction()
+{
+	SetHasLanded(false);
 }
 
 void AAuraCharacter::InitAbilityActorInfo()

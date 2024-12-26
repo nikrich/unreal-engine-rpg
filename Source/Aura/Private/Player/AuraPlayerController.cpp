@@ -121,6 +121,15 @@ void AAuraPlayerController::MoveStarted(const FInputActionValue& InputActionValu
 {
 	AuraCharacter->SetIsIdle(false);
 	AuraCharacter->SetIsRunning(true);
+	AuraCharacter->SetHasStartedToRun(true);
+
+	FTimerHandle DelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelayHandle, this, &AAuraPlayerController::HasStartedToRun, 0.3f, false);
+}
+
+void AAuraPlayerController::HasStartedToRun()
+{
+	AuraCharacter->SetHasStartedToRun(false);
 }
 
 void AAuraPlayerController::MoveEnded(const FInputActionValue& InputActionValue)
@@ -131,6 +140,9 @@ void AAuraPlayerController::MoveEnded(const FInputActionValue& InputActionValue)
 
 void AAuraPlayerController::Jump(const FInputActionValue& InputActionValue)
 {
+	AuraCharacter->SetIsIdle(true);
+	AuraCharacter->SetIsRunning(false);
+	AuraCharacter->SetIsJumping(true);
 	AuraCharacter->Jump();
 }
 

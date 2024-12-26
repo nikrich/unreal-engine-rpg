@@ -89,26 +89,6 @@ void AAuraCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-bool AAuraCharacterBase::GetIsIdle() const
-{
-	return bIsIdle;
-}
-
-bool AAuraCharacterBase::GetIsRunning() const
-{
-	return bIsRunning;
-}
-
-bool AAuraCharacterBase::GetIsSprinting() const
-{
-	return bIsSprinting;
-}
-
-bool AAuraCharacterBase::GetIsJumping() const
-{
-	return bIsJumping;
-}
-
 void AAuraCharacterBase::SetIsIdle(bool IsIdle)
 {
 	bIsIdle = IsIdle;
@@ -127,6 +107,17 @@ void AAuraCharacterBase::SetIsSprinting(bool IsSprinting)
 void AAuraCharacterBase::SetIsJumping(bool IsJumping)
 {
 	bIsJumping = IsJumping;
+	bHasLanded = !IsJumping;
+}
+
+void AAuraCharacterBase::SetHasLanded(bool HasLanded)
+{
+	bHasLanded = HasLanded;
+}
+
+void AAuraCharacterBase::SetHasStartedToRun(bool HasStartedToRun)
+{
+	bHasStartedToRun = HasStartedToRun;
 }
 
 /*

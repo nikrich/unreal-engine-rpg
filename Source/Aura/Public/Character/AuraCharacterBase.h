@@ -35,28 +35,43 @@ public:
 
 	// Movement
 	UFUNCTION(BlueprintCallable)
-	bool GetIsIdle() const;
+	bool GetIsIdle() const { return bIsIdle; };
 
 	UFUNCTION(BlueprintCallable)
-	bool GetIsRunning() const;
+	bool GetIsRunning() const { return bIsRunning; };
 
 	UFUNCTION(BlueprintCallable)
-	bool GetIsSprinting() const;
+	bool GetIsSprinting() const { return bIsSprinting; };
 
 	UFUNCTION(BlueprintCallable)
-	bool GetIsJumping() const;
+	bool GetIsJumping() const { return bIsJumping; };
+
+	UFUNCTION(BlueprintCallable)
+	bool GetHasLanded() const { return bHasLanded; };
+
+	UFUNCTION(BlueprintCallable)
+	bool GetHasStartedToRun() const { return bHasStartedToRun; };
 
 	void SetIsIdle(bool IsIdle);
 	void SetIsRunning(bool IsRunning);
 	void SetIsSprinting(bool IsSprinting);
 	void SetIsJumping(bool IsJumping);
+	void SetHasLanded(bool HasLanded);
+	void SetHasStartedToRun(bool HasStartedToRun);
 
 
 protected:
 	virtual void BeginPlay() override;
 
+	/*
+	 * State Machine
+	 */
+
 	UPROPERTY(EditAnyWhere, Category = "Movement")
 	bool bIsIdle = true;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bIsStartingToRun = false;
 
 	UPROPERTY(EditAnyWhere, Category = "Movement")
 	bool bIsRunning = false;
@@ -69,6 +84,12 @@ protected:
 
 	UPROPERTY(EditAnyWhere, Category = "Movement")
 	bool bIsCrouching = false;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bHasLanded = false;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bHasStartedToRun = false;
 
 	UPROPERTY(EditAnyWhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
