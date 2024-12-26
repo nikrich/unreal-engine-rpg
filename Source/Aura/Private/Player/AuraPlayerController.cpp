@@ -13,6 +13,8 @@
 #include <NavigationSystem.h>
 #include "GameFramework/Character.h"
 #include "UI/Widget//DamageTextComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include <Character/AuraCharacterBase.h>
 
 /**
  * Constructor for the AuraPlayerController class.
@@ -51,6 +53,8 @@ void AAuraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	AuraCharacter = Cast<AAuraCharacterBase>(GetPawn<APawn>());
+
 	if (IsLocalController() && GEngine)
 	{
 		// ConsoleCommand(TEXT("showdebug abilitysystem"), true);
@@ -80,37 +84,83 @@ void AAuraPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
+
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AAuraPlayerController::MoveStarted);
+	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AAuraPlayerController::MoveEnded);
+
+	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Jump);
+	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AAuraPlayerController::StopJumping);
+
+	AuraInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Crouch);
+	AuraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AAuraPlayerController::CrouchStarted);
+	AuraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AAuraPlayerController::CrouchEnded);
+
 	AuraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Look);
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
-/**
- * Called when the Move action is triggered.
- * Moves the controlled pawn based on the input values.
- * @param InputActionValue The input action value containing the move values.
+/*
+ * Input Functions and State Machine
  */
+
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 {
-	const FVector2D MoveValue = InputActionValue.Get<FVector2D>();
+	FVector2D MoveValue = InputActionValue.Get<FVector2D>();
 	const FRotator Rotation = GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	// do not get confused with the following line, it is not a typo
-	// the Y value is the forward value and the X value is the right value in the input mappings
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
-		ControlledPawn->AddMovementInput(ForwardDirection, MoveValue.Y);
-		ControlledPawn->AddMovementInput(RightDirection, MoveValue.X);
-	}
+	AuraCharacter->AddMovementInput(ForwardDirection, MoveValue.Y);
+	AuraCharacter->AddMovementInput(RightDirection, MoveValue.X);
 }
+
+void AAuraPlayerController::MoveStarted(const FInputActionValue& InputActionValue)
+{
+	AuraCharacter->SetIsIdle(false);
+	AuraCharacter->SetIsRunning(true);
+}
+
+void AAuraPlayerController::MoveEnded(const FInputActionValue& InputActionValue)
+{
+	AuraCharacter->SetIsIdle(true);
+	AuraCharacter->SetIsRunning(false);
+}
+
+void AAuraPlayerController::Jump(const FInputActionValue& InputActionValue)
+{
+	AuraCharacter->Jump();
+}
+
+void AAuraPlayerController::StopJumping(const FInputActionValue& InputActionValue)
+{
+	AuraCharacter->StopJumping();
+}
+
+void AAuraPlayerController::Crouch(const FInputActionValue& InputActionValue)
+{
+
+}
+
+void AAuraPlayerController::CrouchStarted(const FInputActionValue& InputActionValue)
+{
+	AuraCharacter->Crouch();
+}
+
+void AAuraPlayerController::CrouchEnded(const FInputActionValue& InputActionValue)
+{
+	AuraCharacter->UnCrouch();
+}
+
 
 void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 {
 	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
+		// Camera
+
 		FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 
 		FRotator CameraTargetRotation = GetControlRotation();
@@ -119,17 +169,57 @@ void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 
 		ForwardVector = FRotationMatrix(CameraTargetRotation).GetUnitAxis(EAxis::X);
 
-		FRotator CharacterTargetRotation = ControlledPawn->GetActorRotation();
-		CharacterTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
-
-		// Smoothly interpolate the rotation
 		FRotator SmoothedCameraRotation = FMath::RInterpTo(GetControlRotation(), CameraTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
-		FRotator SmoothedCharacterRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), CharacterTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
-
-		ControlledPawn->SetActorRelativeRotation(SmoothedCharacterRotation);
 		SetControlRotation(SmoothedCameraRotation);
+
+		// Character
+		// Only rotate the character if they are not idle
+		if(!AuraCharacter->GetIsIdle()) {
+			FRotator CharacterTargetRotation = ControlledPawn->GetActorRotation();
+			CharacterTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
+
+			FRotator SmoothedCharacterRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), CharacterTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+
+			ControlledPawn->SetActorRelativeRotation(SmoothedCharacterRotation);
+		}
 	}
 }
+
+/*
+ * Abilities
+ */
+
+void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	
+}
+
+void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (GetAuraAbilitySystemComponent()) {
+		GetAuraAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+	}
+}
+
+void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	if (GetAuraAbilitySystemComponent()) {
+		GetAuraAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+	}
+}
+
+UAuraAbilitySystemComponent* AAuraPlayerController::GetAuraAbilitySystemComponent()
+{
+	if (!AbilitySystemComponent) {
+		AbilitySystemComponent = Cast<UAuraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+	}
+
+	return AbilitySystemComponent;
+}
+
+/*
+ * Cursor Hits
+ */
 
 void AAuraPlayerController::LineTrace()
 {
@@ -185,32 +275,4 @@ void AAuraPlayerController::LineTrace()
 	}
 
 	bTargeting = ThisActor ? true : false;
-}
-
-void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
-{
-	
-}
-
-void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
-{
-	if (GetAuraAbilitySystemComponent()) {
-		GetAuraAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
-	}
-}
-
-void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
-{
-	if (GetAuraAbilitySystemComponent()) {
-		GetAuraAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
-	}
-}
-
-UAuraAbilitySystemComponent* AAuraPlayerController::GetAuraAbilitySystemComponent()
-{
-	if (!AbilitySystemComponent) {
-		AbilitySystemComponent = Cast<UAuraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
-	}
-
-	return AbilitySystemComponent;
 }

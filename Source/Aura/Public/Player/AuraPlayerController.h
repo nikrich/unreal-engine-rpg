@@ -50,11 +50,23 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
+	class AAuraCharacterBase* AuraCharacter;
+
+	/*
+	 * Input Actions
+	 */
+
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputMappingContext> AuraContext;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> CrouchAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputAction> LookAction;
@@ -80,9 +92,33 @@ private:
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	float LineTraceDistance = 2000.f;
 
-	
+	/*
+	 * Input Functions
+	 */
+
+	void MoveStarted(const struct FInputActionValue& InputActionValue);
+	void MoveEnded(const struct FInputActionValue& InputActionValue);
 	void Move(const struct FInputActionValue& InputActionValue);
+
+	void CrouchStarted(const struct FInputActionValue& InputActionValue);
+	void CrouchEnded(const struct FInputActionValue& InputActionValue);
+	void Crouch(const struct FInputActionValue& InputActionValue);
+
+	void Jump(const struct FInputActionValue& InputActionValue);
+	void StopJumping(const struct FInputActionValue& InputActionValue);
+
 	void Look(const FInputActionValue& Value);
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UAuraInputConfig> InputConfig;
+
+	/*
+	 * Cursor Hits
+	 */
 
 	void LineTrace();
 	FHitResult LineTraceHit;
@@ -91,13 +127,6 @@ private:
 	TScriptInterface<IEnemyInterface> ThisActor;
 
 	bool bTargeting = false;
-
-	void AbilityInputTagPressed(FGameplayTag InputTag);
-	void AbilityInputTagReleased(FGameplayTag InputTag);
-	void AbilityInputTagHeld(FGameplayTag InputTag);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UAuraInputConfig> InputConfig;
 
 	UPROPERTY()
 	TObjectPtr<UAuraAbilitySystemComponent> AbilitySystemComponent;

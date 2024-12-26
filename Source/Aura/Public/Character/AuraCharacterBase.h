@@ -33,8 +33,42 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(FVector ImpactVector, bool bBlocked, bool bCriticalHit);
 
+	// Movement
+	UFUNCTION(BlueprintCallable)
+	bool GetIsIdle() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsRunning() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsSprinting() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsJumping() const;
+
+	void SetIsIdle(bool IsIdle);
+	void SetIsRunning(bool IsRunning);
+	void SetIsSprinting(bool IsSprinting);
+	void SetIsJumping(bool IsJumping);
+
+
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bIsIdle = true;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bIsRunning = false;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bIsSprinting = false;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bIsJumping = false;
+
+	UPROPERTY(EditAnyWhere, Category = "Movement")
+	bool bIsCrouching = false;
 
 	UPROPERTY(EditAnyWhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
@@ -82,6 +116,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
+
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities")

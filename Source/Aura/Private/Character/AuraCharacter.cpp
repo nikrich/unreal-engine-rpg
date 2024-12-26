@@ -74,6 +74,13 @@ FVector AAuraCharacter::GetForwardVector() const
 	return Super::GetForwardVector();
 }
 
+void AAuraCharacter::OnMovementModeChanged(EMovementMode PrevMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMode, PreviousCustomMode);
+	
+	bIsJumping = GetCharacterMovement()->MovementMode == MOVE_Falling;
+}
+
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();

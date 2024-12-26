@@ -80,10 +80,58 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVecto
 	Dissolve();
 }
 
+/*
+ * Movement Start
+ */
+
 void AAuraCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+bool AAuraCharacterBase::GetIsIdle() const
+{
+	return bIsIdle;
+}
+
+bool AAuraCharacterBase::GetIsRunning() const
+{
+	return bIsRunning;
+}
+
+bool AAuraCharacterBase::GetIsSprinting() const
+{
+	return bIsSprinting;
+}
+
+bool AAuraCharacterBase::GetIsJumping() const
+{
+	return bIsJumping;
+}
+
+void AAuraCharacterBase::SetIsIdle(bool IsIdle)
+{
+	bIsIdle = IsIdle;
+}
+
+void AAuraCharacterBase::SetIsRunning(bool IsRunning)
+{
+	bIsRunning = IsRunning;
+}
+
+void AAuraCharacterBase::SetIsSprinting(bool IsSprinting)
+{
+	bIsSprinting = IsSprinting;
+}
+
+void AAuraCharacterBase::SetIsJumping(bool IsJumping)
+{
+	bIsJumping = IsJumping;
+}
+
+/*
+ * Movement End
+ */
 
 FVector AAuraCharacterBase::GetCombatSocketLocation() const
 {
