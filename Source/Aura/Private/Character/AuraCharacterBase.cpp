@@ -81,46 +81,6 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVecto
 }
 
 /*
- * Movement Start
- */
-
-void AAuraCharacterBase::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void AAuraCharacterBase::SetIsIdle(bool IsIdle)
-{
-	bIsIdle = IsIdle;
-}
-
-void AAuraCharacterBase::SetIsRunning(bool IsRunning)
-{
-	bIsRunning = IsRunning;
-}
-
-void AAuraCharacterBase::SetIsSprinting(bool IsSprinting)
-{
-	bIsSprinting = IsSprinting;
-}
-
-void AAuraCharacterBase::SetIsJumping(bool IsJumping)
-{
-	bIsJumping = IsJumping;
-	bHasLanded = !IsJumping;
-}
-
-void AAuraCharacterBase::SetHasLanded(bool HasLanded)
-{
-	bHasLanded = HasLanded;
-}
-
-void AAuraCharacterBase::SetHasStartedToRun(bool HasStartedToRun)
-{
-	bHasStartedToRun = HasStartedToRun;
-}
-
-/*
  * Movement End
  */
 

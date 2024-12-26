@@ -24,8 +24,6 @@ public:
 	virtual FVector GetForwardVector() const override;
 	/** End Combat Interfact **/
 
-	virtual void OnMovementModeChanged(EMovementMode PrevMode, uint8 PreviousCustomMode);
-
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -39,8 +37,6 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UFUNCTION()
-	void HasLandedDelayedFunction();
 
 private:
 	virtual void InitAbilityActorInfo() override;

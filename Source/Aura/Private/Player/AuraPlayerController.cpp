@@ -65,14 +65,6 @@ void AAuraPlayerController::BeginPlay()
 	if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
 		Subsystem->AddMappingContext(AuraContext, 0);
 	}
-
-	/*FInputModeGameAndUI InputModeData;
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	InputModeData.SetHideCursorDuringCapture(false);
-	SetInputMode(InputModeData);
-
-	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Default;*/
 }
 
 /**
@@ -86,19 +78,12 @@ void AAuraPlayerController::SetupInputComponent()
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
 
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
-	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AAuraPlayerController::MoveStarted);
-	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AAuraPlayerController::MoveEnded);
-
-	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Jump);
-	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AAuraPlayerController::StopJumping);
-
-	AuraInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Crouch);
-	AuraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AAuraPlayerController::CrouchStarted);
-	AuraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AAuraPlayerController::CrouchEnded);
-
 	AuraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Look);
+	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Jump);
+
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
+
 
 /*
  * Input Functions and State Machine
@@ -117,55 +102,10 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 	AuraCharacter->AddMovementInput(RightDirection, MoveValue.X);
 }
 
-void AAuraPlayerController::MoveStarted(const FInputActionValue& InputActionValue)
-{
-	AuraCharacter->SetIsIdle(false);
-	AuraCharacter->SetIsRunning(true);
-	AuraCharacter->SetHasStartedToRun(true);
-
-	FTimerHandle DelayHandle;
-	GetWorld()->GetTimerManager().SetTimer(DelayHandle, this, &AAuraPlayerController::HasStartedToRun, 0.3f, false);
-}
-
-void AAuraPlayerController::HasStartedToRun()
-{
-	AuraCharacter->SetHasStartedToRun(false);
-}
-
-void AAuraPlayerController::MoveEnded(const FInputActionValue& InputActionValue)
-{
-	AuraCharacter->SetIsIdle(true);
-	AuraCharacter->SetIsRunning(false);
-}
-
 void AAuraPlayerController::Jump(const FInputActionValue& InputActionValue)
 {
-	AuraCharacter->SetIsIdle(true);
-	AuraCharacter->SetIsRunning(false);
-	AuraCharacter->SetIsJumping(true);
 	AuraCharacter->Jump();
 }
-
-void AAuraPlayerController::StopJumping(const FInputActionValue& InputActionValue)
-{
-	AuraCharacter->StopJumping();
-}
-
-void AAuraPlayerController::Crouch(const FInputActionValue& InputActionValue)
-{
-
-}
-
-void AAuraPlayerController::CrouchStarted(const FInputActionValue& InputActionValue)
-{
-	AuraCharacter->Crouch();
-}
-
-void AAuraPlayerController::CrouchEnded(const FInputActionValue& InputActionValue)
-{
-	AuraCharacter->UnCrouch();
-}
-
 
 void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 {
@@ -186,7 +126,7 @@ void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 
 		// Character
 		// Only rotate the character if they are not idle
-		if(!AuraCharacter->GetIsIdle()) {
+		if (!AuraCharacter->GetMovementComponent()->Velocity.IsNearlyZero()) {
 			FRotator CharacterTargetRotation = ControlledPawn->GetActorRotation();
 			CharacterTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
 
