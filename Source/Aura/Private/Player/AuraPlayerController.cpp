@@ -113,15 +113,21 @@ void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 	{
 		FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 
-		FRotator TargetRotation = GetControlRotation();
-		TargetRotation.Yaw += LookAxisVector.X * Sensitivity;
-		TargetRotation.Pitch = FMath::Clamp(TargetRotation.Pitch - LookAxisVector.Y * Sensitivity, -80.0f, 80.0f);
+		FRotator CameraTargetRotation = GetControlRotation();
+		CameraTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
+		CameraTargetRotation.Pitch = FMath::Clamp(CameraTargetRotation.Pitch - LookAxisVector.Y * Sensitivity, -80.0f, 80.0f);
 
-		ForwardVector = FRotationMatrix(TargetRotation).GetUnitAxis(EAxis::X);
+		ForwardVector = FRotationMatrix(CameraTargetRotation).GetUnitAxis(EAxis::X);
+
+		FRotator CharacterTargetRotation = ControlledPawn->GetActorRotation();
+		CharacterTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
 
 		// Smoothly interpolate the rotation
-		FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), TargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
-		SetControlRotation(SmoothedRotation);
+		FRotator SmoothedCameraRotation = FMath::RInterpTo(GetControlRotation(), CameraTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+		FRotator SmoothedCharacterRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), CharacterTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+
+		ControlledPawn->SetActorRelativeRotation(SmoothedCharacterRotation);
+		SetControlRotation(SmoothedCameraRotation);
 	}
 }
 
