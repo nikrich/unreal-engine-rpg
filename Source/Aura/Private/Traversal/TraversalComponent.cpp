@@ -8,7 +8,7 @@
 
 UTraversalComponent::UTraversalComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -17,19 +17,14 @@ void UTraversalComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Character = Cast<ACharacter>(GetOwner());
-	CharacterLocation = Character->GetActorLocation();
 	CapsuleRadius= Character->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	CapsuleHalfHeight = Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	
 }
 
-
-// Called every frame
-void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UTraversalComponent::TryTraversalAction()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	const FTraceResult TraceResult = PerformTrace();
 }
 
 FTraversalInputType UTraversalComponent::GetTraversalInput() const
@@ -50,22 +45,28 @@ FTraversalInputType UTraversalComponent::GetTraversalInput() const
 	//}
 
 	// These trace values are hardcoded for now, but will be replaced with variables that can be set in the editor.
-	return FTraversalInputType(ForwardVector, UnrotatedMapClampedVelocity, FVector(), FVector(), 30.0f, 60.f);
+	return FTraversalInputType(ForwardVector, UnrotatedMapClampedVelocity, FVector(0.f, 0.f, 50.f), FVector(0.f, 0.f, 50.f), 30.0f, 60.f);
 }
 
-FTraceResult UTraversalComponent::PerformTrace()
+FTraceResult UTraversalComponent::PerformTrace() const
 {
 	const FTraversalInputType TraversalInput = GetTraversalInput();
+	const FVector CharacterLocation = Character->GetActorLocation();
 
 	FVector StartSweepLocation = CharacterLocation + TraversalInput.TraceOriginOffset;
-	FVector EndSweepLocation = TraversalInput.TraceEndOffset + TraversalInput.TraceForwardVector * TraversalInput.TraceForwardDistance;
+	FVector EndSweepLocation = TraversalInput.TraceEndOffset + (TraversalInput.TraceForwardVector * TraversalInput.TraceForwardDistance) + CharacterLocation;
+
+	if (DrawDebug) 
+	{
+		DrawDebugLine(GetWorld(), StartSweepLocation, EndSweepLocation, FColor::Green, false, 2.f);
+	}
 
 	// Capsule Trace by Channel
 	FHitResult HitResult;
 	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, StartSweepLocation, EndSweepLocation, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), FCollisionQueryParams(FName(TEXT("")), false, Character));
 
 	// Traversal Check Failed - Return Check Failed with FTraceResult Struct
-	if(!bTraceSuccess)
+	if (!bTraceSuccess)
 	{
 		return FTraceResult(true, false);
 	}
@@ -77,6 +78,14 @@ FTraceResult UTraversalComponent::PerformTrace()
 
 	FTraversalCheckResult TraversalCheckResult = FTraversalCheckResult();
 	TraversalCheckResult.HitComponent = HitResult.GetComponent();
+
+	TraversableBlock->GetLedgeTransforms(HitResult.ImpactPoint, CharacterLocation, TraversalCheckResult);
+
+	if (!TraversalCheckResult.bHasFrontLedge) {
+		return FTraceResult(true, false);
+	}
+
+
 
 	return FTraceResult(true, false);
 }

@@ -122,20 +122,18 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	ACharacter* Character;
+
+	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
+	void TryTraversalAction();
 
 	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
 	FTraversalInputType GetTraversalInput() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
-	FTraceResult PerformTrace();
+	FTraceResult PerformTrace() const;
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Input")
-	FVector CharacterLocation;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	float CapsuleRadius;
@@ -143,4 +141,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	float CapsuleHalfHeight;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	bool DrawDebug;
 };

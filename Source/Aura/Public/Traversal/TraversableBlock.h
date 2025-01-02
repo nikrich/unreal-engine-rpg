@@ -21,9 +21,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:
+	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
+	void GetLedgeTransforms(FVector HitLocation, FVector ActorLocation, struct FTraversalCheckResult& CheckResult);
+
+	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
+	USplineComponent* FindClosestLedge(FVector ActorLocation);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversable Block")
 	UStaticMeshComponent* BlockMesh;
@@ -40,4 +43,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversable Block")
 	USplineComponent* Ledge4;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversable Block")
+	TArray<USplineComponent*> Ledges;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversable Block")
+	TMap<USplineComponent*, USplineComponent*> OppositeLedges;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversable Block")
+	float MinLedgeLength = 60.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversable Block")
+	bool DrawDebug = false;
 };

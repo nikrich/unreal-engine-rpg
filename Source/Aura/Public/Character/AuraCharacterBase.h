@@ -13,6 +13,7 @@ class UAttributeSet;
 class UGameplayEffect;
 class UGameplayAbility;
 class UAnimMontage;
+class UTraversalComponent;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -21,6 +22,7 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 
 public:
 	AAuraCharacterBase();
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
@@ -33,14 +35,17 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(FVector ImpactVector, bool bBlocked, bool bCriticalHit);
 
+	virtual void Jump() override;
 
 protected:
-
-	UPROPERTY(EditAnyWhere, Category="Combat")
+	UPROPERTY(EditAnyWhere, BlueprintReadonly, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	FName WeaponSocketName;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadonly, Category = "Traversal")
+	TObjectPtr<UTraversalComponent> TraversalComponent;
 
 	virtual FVector GetCombatSocketLocation() const;
 
@@ -60,7 +65,6 @@ protected:
 
 	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalyAttributes;
-
 	
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
 
@@ -68,7 +72,10 @@ protected:
 
 	void AddCharacterAbilities();
 
-	// Dissolve Effects
+	/*
+	 * Dissolve Effects
+	 */ 
+
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = "Dissolve")
 	TObjectPtr<UMaterialInstance> DissolveMaterialInstance;
 
