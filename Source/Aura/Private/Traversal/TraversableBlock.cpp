@@ -73,10 +73,10 @@ void ATraversableBlock::GetLedgeTransforms(FVector HitLocation, FVector ActorLoc
 	const FVector Location = ClosestLedge->FindLocationClosestToWorldLocation(HitLocation, ESplineCoordinateSpace::Local);
 	const float DistanceAlongSpline = ClosestLedge->GetDistanceAlongSplineAtLocation(Location, ESplineCoordinateSpace::Local);
 
-	const float HalfLedgeLength = LedgeLength / 2.f;
+	const float HalfLedgeLength = MinLedgeLength / 2.f;
 	const float AcceptableGrabDistanceOnSpline = FMath::Clamp(DistanceAlongSpline, HalfLedgeLength, LedgeLength - HalfLedgeLength);
 
-	const FTransform GrabTransform = ClosestLedge->GetTransformAtDistanceAlongSpline(AcceptableGrabDistanceOnSpline, ESplineCoordinateSpace::Local);
+	const FTransform GrabTransform = ClosestLedge->GetTransformAtDistanceAlongSpline(AcceptableGrabDistanceOnSpline, ESplineCoordinateSpace::World);
 	const FVector GrabLocation = GrabTransform.GetLocation();
 	const FVector GrabUpVector = GrabTransform.GetRotation().GetUpVector();
 
@@ -124,7 +124,6 @@ void ATraversableBlock::GetLedgeTransforms(FVector HitLocation, FVector ActorLoc
 
 USplineComponent* ATraversableBlock::FindClosestLedge(FVector ActorLocation)
 {
-	
 	float ClosestDistance = FLT_MAX;
 	USplineComponent* ClosestLedge = nullptr;
 

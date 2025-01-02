@@ -133,14 +133,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
 	FTraceResult PerformTrace() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
+	FHitResult CheckTraceForFrontLedge(FTraversalCheckResult TraversalCheckResult, FVector FrontLedgeLocationCollisionCheck) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
+	FHitResult CheckTraceForBackLedge(FTraversalCheckResult TraversalCheckResult, FVector FrontLedgeLocationCollisionCheck, FVector BackLedgeLocationCollisionCheck) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
+	FHitResult CheckTraceForBackFloor(FTraversalCheckResult TraversalCheckResult, FVector BackLedgeLocationCollisionCheck) const;
+
 private:
 
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, Category = "Capsule")
 	float CapsuleRadius;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, Category = "Capsule")
 	float CapsuleHalfHeight;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool DrawDebug;
 };
