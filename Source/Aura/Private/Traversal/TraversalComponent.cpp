@@ -61,7 +61,6 @@ void UTraversalComponent::PerformTraversalTrace()
 		return;
 	}
 
-
 	// Perform a trace from the actors location up to the front ledge location to determine
 	// if there is room for the actor to move up to it. If so, continue the function. If not, exit early.
 	
@@ -228,8 +227,10 @@ void UTraversalComponent::SetBackFloorInfo(FTraversalCheckResult& CheckResult)
  * Used by The Chooser Table to Identify Valid Animations
  */
 
+
 FTraversalChooserInputs UTraversalComponent::MakeChooserInputs() const
 {
+	// TODO - Fix Gait and Speed
 	FTraversalChooserInputs ChooserInputs = FTraversalChooserInputs();
 	ChooserInputs.bHasBackFloor = TraversalCheckResult.bHasBackFloor;
 	ChooserInputs.bHasBackLedge = TraversalCheckResult.bHasBackLedge;
