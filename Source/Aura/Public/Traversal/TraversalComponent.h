@@ -8,6 +8,8 @@
 #include <Character/AuraCharacterBase.h>
 #include "TraversalComponent.generated.h"
 
+class ATraversableBlock;
+
 UENUM(BlueprintType)
 enum class ETraversalActionType : uint8
 {
@@ -47,6 +49,22 @@ struct FTraversalInputType
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
 	float TraceHalfHeight;
+};
+
+USTRUCT(BlueprintType)
+struct FTraversableBlockResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	ATraversableBlock* TraversableBlock;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	UPrimitiveComponent* HitComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	FVector ImpactPoint;
+
 };
 
 USTRUCT(BlueprintType)
@@ -188,7 +206,7 @@ public:
 	ACharacter* Character;
 
 	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
-	FTraceResult PerformTraversalTrace();
+	void PerformTraversalTrace();
 
 	UPROPERTY(BlueprintAssignable, Category = "Traversal Info")
 	FOnTraversalCheckComplete OnTraversalCheckComplete;
@@ -204,12 +222,19 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Capsule")
 	float CapsuleHalfHeight;
 
+	UPROPERTY(EditAnywhere, Category = "Capsule")
+	FVector FrontLedgeLocationCollisionCheck;
+
+	UPROPERTY(EditAnywhere, Category = "Capsule")
+	FVector BackLedgeLocationCollisionCheck;
+
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool DrawDebug;
 
 	FTraversalInputType GetTraversalInput() const;
-	FHitResult CheckTraceForFrontLedge(FVector FrontLedgeLocationCollisionCheck) const;
-	FHitResult CheckTraceForBackLedge(FVector FrontLedgeLocationCollisionCheck, FVector BackLedgeLocationCollisionCheck) const;
-	FHitResult CheckTraceForBackFloor(FVector BackLedgeLocationCollisionCheck) const;
+	FTraversableBlockResult CheckIfObjectIsTraversable() const;
+	void SetFrontLedgeInfo(FTraversalCheckResult& CheckResult);
+	void SetBackLedgeInfo(FTraversalCheckResult& CheckResult);
+	void SetBackFloorInfo(FTraversalCheckResult& CheckResult);
 	FTraversalChooserInputs MakeChooserInputs() const;
 };

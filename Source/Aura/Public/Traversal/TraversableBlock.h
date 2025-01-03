@@ -23,7 +23,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
-	void GetLedgeTransforms(FVector HitLocation, FVector ActorLocation, struct FTraversalCheckResult& CheckResult);
+	void SetLedgeTransforms(FVector HitLocation, FVector ActorLocation, struct FTraversalCheckResult& CheckResult);
 
 	UFUNCTION(BlueprintCallable, Category = "Traversal Info")
 	USplineComponent* FindClosestLedge(FVector ActorLocation);

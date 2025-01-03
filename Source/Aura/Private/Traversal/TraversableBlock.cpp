@@ -46,7 +46,7 @@ void ATraversableBlock::BeginPlay()
 	
 }
 
-void ATraversableBlock::GetLedgeTransforms(FVector HitLocation, FVector ActorLocation, FTraversalCheckResult& CheckResult)
+void ATraversableBlock::SetLedgeTransforms(FVector HitLocation, FVector ActorLocation, FTraversalCheckResult& CheckResult)
 {
 	USplineComponent* ClosestLedge = FindClosestLedge(ActorLocation);
 

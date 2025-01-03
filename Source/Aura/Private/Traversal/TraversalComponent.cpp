@@ -42,16 +42,57 @@ FTraversalInputType UTraversalComponent::GetTraversalInput() const
 	return FTraversalInputType(ForwardVector, UnrotatedMapClampedVelocity, FVector(0.f, 0.f, 50.f), FVector(0.f, 0.f, 50.f), 30.0f, 60.f);
 }
 
-FTraceResult UTraversalComponent::PerformTraversalTrace()
+void UTraversalComponent::PerformTraversalTrace()
 {
 	TraversalCheckResult = FTraversalCheckResult();
+	
+	FTraversableBlockResult TraversableBlock = CheckIfObjectIsTraversable();
+
+	if (!TraversableBlock.TraversableBlock)
+	{
+		return;
+	}
+
+	TraversalCheckResult.HitComponent = TraversableBlock.HitComponent;
+
+	TraversableBlock.TraversableBlock->SetLedgeTransforms(TraversableBlock.ImpactPoint, Character->GetActorLocation(), TraversalCheckResult);
+
+	if (!TraversalCheckResult.bHasFrontLedge) {
+		return;
+	}
+
+
+	// Perform a trace from the actors location up to the front ledge location to determine
+	// if there is room for the actor to move up to it. If so, continue the function. If not, exit early.
+	
+	SetFrontLedgeInfo(TraversalCheckResult);
+
+	// Perform a trace across the top of the obstacle from the front ledge to the back ledge to see if theres room for the actor to move across it.
+	// If there is room, continue the function. If not, exit early.
+
+	SetBackLedgeInfo(TraversalCheckResult);
+	
+	// Trace downward from the back ledge location (using the height of the obstacle for the distance) to find the floor. 
+	// If there is a floor, save its location and the back ledges height (using the distance between the back ledge and the floor). 
+	// If no floor was found, invalidate the back floor.
+	 
+	SetBackFloorInfo(TraversalCheckResult);
+	
+	// Once all of the Meta Data has been collected, the Montage Chooser will be called to determine the best animation to play.
+
+	FTraversalChooserInputs MontageChooserInputs = MakeChooserInputs();
+	OnTraversalCheckComplete.Broadcast(MontageChooserInputs);
+}
+
+FTraversableBlockResult UTraversalComponent::CheckIfObjectIsTraversable() const
+{
 	const FTraversalInputType TraversalInput = GetTraversalInput();
 	const FVector CharacterLocation = Character->GetActorLocation();
 
 	FVector StartSweepLocation = CharacterLocation + TraversalInput.TraceOriginOffset;
 	FVector EndSweepLocation = TraversalInput.TraceEndOffset + (TraversalInput.TraceForwardVector * TraversalInput.TraceForwardDistance) + CharacterLocation;
 
-	if (DrawDebug) 
+	if (DrawDebug)
 	{
 		DrawDebugLine(GetWorld(), StartSweepLocation, EndSweepLocation, FColor::Green, false, 2.f);
 	}
@@ -63,7 +104,7 @@ FTraceResult UTraversalComponent::PerformTraversalTrace()
 	// Traversal Check Failed - Return Check Failed with FTraceResult Struct
 	if (!bTraceSuccess)
 	{
-		return FTraceResult(true, false);
+		return FTraversableBlockResult();
 	}
 
 	// Hit Has Occurred
@@ -73,74 +114,17 @@ FTraceResult UTraversalComponent::PerformTraversalTrace()
 
 	if (!TraversableBlock)
 	{
-		return FTraceResult(true, false);
+		return FTraversableBlockResult();
 	}
 
-	TraversalCheckResult.HitComponent = HitResult.GetComponent();
-
-	TraversableBlock->GetLedgeTransforms(HitResult.ImpactPoint, CharacterLocation, TraversalCheckResult);
-
-	if (!TraversalCheckResult.bHasFrontLedge) {
-		return FTraceResult(true, false);
-	}
-
-	// Perform a trace from the actors location up to the front ledge location to determine 
-	// if there is room for the actor to move up to it. If so, continue the function. If not, exit early.
-	const FVector FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
-	const FHitResult FrontLedgeHitResult = CheckTraceForFrontLedge(FrontLedgeLocationCollisionCheck);
-	const bool bCannotTraverseLedge = FrontLedgeHitResult.bBlockingHit;
-
-	// If the front ledge is blocked for traversal by another object, exit early.
-	if (bCannotTraverseLedge)
-	{
-		return FTraceResult(true, false);
-	}
-
-	// Save the height of the obstacle using the delta between the actor and front ledge transform.
-	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeLocation.Z - (CharacterLocation.Z - CapsuleHalfHeight));
-
-	// Perform a trace across the top of the obstacle from the front ledge to the back ledge to see if theres room for the actor to move across it.
-	// If there is room, continue the function. If not, exit early.
-
-	const FVector BackLedgeLocationCollisionCheck = TraversalCheckResult.BackLedgeLocation + (TraversalCheckResult.BackLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
-	const bool bIsBlockedFromRunningToBackLedge = CheckTraceForBackLedge(FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck).bBlockingHit;
-	
-	if (bIsBlockedFromRunningToBackLedge)
-	{
-		TraversalCheckResult.bHasBackLedge = false;
-	}
-	else 
-	{
-		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, TraversalCheckResult.BackLedgeLocation));
-	}
-	
-	// Trace downward from the back ledge location (using the height of the obstacle for the distance) to find the floor. 
-	// If there is a floor, save its location and the back ledges height (using the distance between the back ledge and the floor). 
-	// If no floor was found, invalidate the back floor.
-	 
-	const FHitResult BackFloorCollisionCheck = CheckTraceForBackFloor(BackLedgeLocationCollisionCheck);
-	const bool bHasBackFloor = BackFloorCollisionCheck.bBlockingHit;
-
-	if (bHasBackFloor) 
-	{
-		TraversalCheckResult.bHasBackFloor = true;
-		TraversalCheckResult.BackFloorLocation = BackFloorCollisionCheck.ImpactPoint;
-		TraversalCheckResult.BackLedgeHeight = TraversalCheckResult.BackLedgeLocation.Z - TraversalCheckResult.BackFloorLocation.Z;
-	}
-	else
-	{
-		TraversalCheckResult.bHasBackFloor = false;
-	}
-
-	FTraversalChooserInputs MontageChooserInputs = MakeChooserInputs();
-	// Broadcast that the trace has been completed
-	OnTraversalCheckComplete.Broadcast(MontageChooserInputs);
-
-	return FTraceResult(false, false);
+	return FTraversableBlockResult(TraversableBlock, HitResult.Component.Get(), HitResult.ImpactPoint);
 }
 
-FHitResult UTraversalComponent::CheckTraceForFrontLedge(FVector FrontLedgeLocationCollisionCheck) const
+
+void UTraversalComponent::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult)
 {
+	FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
+
 	if (DrawDebug)
 	{
 		DrawDebugLine(GetWorld(), Character->GetActorLocation(), FrontLedgeLocationCollisionCheck, FColor::Red, false, 2.f);
@@ -161,11 +145,22 @@ FHitResult UTraversalComponent::CheckTraceForFrontLedge(FVector FrontLedgeLocati
 	
 	}
 
-	return HitResult;
+	const bool bCannotTraverseLedge = HitResult.bBlockingHit;
+
+	// If the front ledge is blocked for traversal by another object, exit early.
+	if (bCannotTraverseLedge)
+	{
+		return;
+	}
+
+	// Save the height of the obstacle using the delta between the actor and front ledge transform.
+	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeLocation.Z - (Character->GetActorLocation().Z - CapsuleHalfHeight));
 }
 
-FHitResult UTraversalComponent::CheckTraceForBackLedge(FVector FrontLedgeLocationCollisionCheck, FVector BackLedgeLocationCollisionCheck) const
+void UTraversalComponent::SetBackLedgeInfo(FTraversalCheckResult& CheckResult)
 {
+	BackLedgeLocationCollisionCheck = TraversalCheckResult.BackLedgeLocation + (TraversalCheckResult.BackLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
+
 	if (DrawDebug)
 	{
 		DrawDebugLine(GetWorld(), FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck, FColor::Blue, false, 2.f);
@@ -179,10 +174,19 @@ FHitResult UTraversalComponent::CheckTraceForBackLedge(FVector FrontLedgeLocatio
 
 	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
 
-	return HitResult;
+	const bool bIsBlockedFromRunningToBackLedge = HitResult.bBlockingHit;
+
+	if (bIsBlockedFromRunningToBackLedge)
+	{
+		TraversalCheckResult.bHasBackLedge = false;
+	}
+	else
+	{
+		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, TraversalCheckResult.BackLedgeLocation));
+	}
 }
 
-FHitResult UTraversalComponent::CheckTraceForBackFloor(FVector BackLedgeLocationCollisionCheck) const
+void UTraversalComponent::SetBackFloorInfo(FTraversalCheckResult& CheckResult)
 {
 	// Add a -Z buffer for the trace
 	const FVector BackledgeOffset = TraversalCheckResult.BackLedgeNormal * (CapsuleRadius + 2.f);
@@ -206,7 +210,18 @@ FHitResult UTraversalComponent::CheckTraceForBackFloor(FVector BackLedgeLocation
 		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 12, FColor::Yellow, false, 2.f);
 	}
 
-	return HitResult;
+	const bool bHasBackFloor = HitResult.bBlockingHit;
+
+	if (bHasBackFloor)
+	{
+		TraversalCheckResult.bHasBackFloor = true;
+		TraversalCheckResult.BackFloorLocation = HitResult.ImpactPoint;
+		TraversalCheckResult.BackLedgeHeight = TraversalCheckResult.BackLedgeLocation.Z - TraversalCheckResult.BackFloorLocation.Z;
+	}
+	else
+	{
+		TraversalCheckResult.bHasBackFloor = false;
+	}
 }
 
 /*
