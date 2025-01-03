@@ -225,7 +225,7 @@ FTraversalChooserInputs UTraversalComponent::MakeChooserInputs() const
 	ChooserInputs.ActionType = TraversalCheckResult.ActionType;
 	ChooserInputs.MovementMode = Character->GetCharacterMovement()->MovementMode;
 	ChooserInputs.Gait = Gait;
-	ChooserInputs.Speed = Character->GetCharacterMovement()->Velocity.Size();
+	ChooserInputs.Speed = Character->GetCharacterMovement()->Velocity.Length();
 
 	return ChooserInputs;
 }
