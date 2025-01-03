@@ -102,7 +102,7 @@ void AAuraCharacterBase::InitAbilityActorInfo()
 void AAuraCharacterBase::Jump()
 {
 	Super::Jump();
-	TraversalComponent->TryTraversalAction();
+	TraversalComponent->PerformTraversalTrace();
 }
 
 void AAuraCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const

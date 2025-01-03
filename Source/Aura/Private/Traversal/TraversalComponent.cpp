@@ -22,11 +22,6 @@ void UTraversalComponent::BeginPlay()
 	
 }
 
-void UTraversalComponent::TryTraversalAction()
-{
-	const FTraceResult TraceResult = PerformTrace();
-}
-
 FTraversalInputType UTraversalComponent::GetTraversalInput() const
 {
 	// Gets how fast the character is moving in its forward direction and uses the value to scale the distance of the forward trace.
@@ -37,19 +32,19 @@ FTraversalInputType UTraversalComponent::GetTraversalInput() const
 	float UnrotatedMapClampedVelocity = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 500.0f), FVector2D(75.f, 350.f), UnrotatedVelocity.X);
 	FVector ForwardVector = Character->GetActorForwardVector();
 
-	// TODO - Add back when done with refactor
-	//// Don't traverse if the character is falling or flying.
-	//if (MovementMode == EMovementMode::MOVE_Falling || MovementMode == EMovementMode::MOVE_Flying) 
-	//{
-	//	return FTraversalInputType(ForwardVector, 0.0f, FVector(), FVector(), 0.0f, 0.0f);
-	//}
+	// Don't traverse if the character is falling or flying.
+	if (MovementMode == EMovementMode::MOVE_Falling || MovementMode == EMovementMode::MOVE_Flying) 
+	{
+		return FTraversalInputType(ForwardVector, 0.0f, FVector(), FVector(), 0.0f, 0.0f);
+	}
 
 	// These trace values are hardcoded for now, but will be replaced with variables that can be set in the editor.
 	return FTraversalInputType(ForwardVector, UnrotatedMapClampedVelocity, FVector(0.f, 0.f, 50.f), FVector(0.f, 0.f, 50.f), 30.0f, 60.f);
 }
 
-FTraceResult UTraversalComponent::PerformTrace() const
+FTraceResult UTraversalComponent::PerformTraversalTrace()
 {
+	TraversalCheckResult = FTraversalCheckResult();
 	const FTraversalInputType TraversalInput = GetTraversalInput();
 	const FVector CharacterLocation = Character->GetActorLocation();
 
@@ -81,7 +76,6 @@ FTraceResult UTraversalComponent::PerformTrace() const
 		return FTraceResult(true, false);
 	}
 
-	FTraversalCheckResult TraversalCheckResult = FTraversalCheckResult();
 	TraversalCheckResult.HitComponent = HitResult.GetComponent();
 
 	TraversableBlock->GetLedgeTransforms(HitResult.ImpactPoint, CharacterLocation, TraversalCheckResult);
@@ -93,21 +87,23 @@ FTraceResult UTraversalComponent::PerformTrace() const
 	// Perform a trace from the actors location up to the front ledge location to determine 
 	// if there is room for the actor to move up to it. If so, continue the function. If not, exit early.
 	const FVector FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
-	const bool bCanTraverseLedge = CheckTraceForFrontLedge(TraversalCheckResult, FrontLedgeLocationCollisionCheck).bBlockingHit;
+	const FHitResult FrontLedgeHitResult = CheckTraceForFrontLedge(FrontLedgeLocationCollisionCheck);
+	const bool bCannotTraverseLedge = FrontLedgeHitResult.bBlockingHit;
 
-	if (!bCanTraverseLedge)
+	// If the front ledge is blocked for traversal by another object, exit early.
+	if (bCannotTraverseLedge)
 	{
 		return FTraceResult(true, false);
 	}
 
 	// Save the height of the obstacle using the delta between the actor and front ledge transform.
-	TraversalCheckResult.ObstacleHeight = TraversalCheckResult.FrontLedgeLocation.Z - CharacterLocation.Z;
+	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeLocation.Z - (CharacterLocation.Z - CapsuleHalfHeight));
 
 	// Perform a trace across the top of the obstacle from the front ledge to the back ledge to see if theres room for the actor to move across it.
 	// If there is room, continue the function. If not, exit early.
 
 	const FVector BackLedgeLocationCollisionCheck = TraversalCheckResult.BackLedgeLocation + (TraversalCheckResult.BackLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
-	const bool bIsBlockedFromRunningToBackLedge = CheckTraceForBackLedge(TraversalCheckResult, FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck).bBlockingHit;
+	const bool bIsBlockedFromRunningToBackLedge = CheckTraceForBackLedge(FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck).bBlockingHit;
 	
 	if (bIsBlockedFromRunningToBackLedge)
 	{
@@ -117,24 +113,12 @@ FTraceResult UTraversalComponent::PerformTrace() const
 	{
 		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, TraversalCheckResult.BackLedgeLocation));
 	}
-
-	// Print State of Traversal Check Result
-	if (DrawDebug)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Front Ledge Location: %s"), *TraversalCheckResult.FrontLedgeLocation.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Front Ledge Normal: %s"), *TraversalCheckResult.FrontLedgeNormal.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Back Ledge Location: %s"), *TraversalCheckResult.BackLedgeLocation.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Back Ledge Normal: %s"), *TraversalCheckResult.BackLedgeNormal.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Obstacle Height: %f"), TraversalCheckResult.ObstacleHeight);
-		UE_LOG(LogTemp, Warning, TEXT("Obstacle Depth: %f"), TraversalCheckResult.ObstacleDepth);
-	}
-
 	
 	// Trace downward from the back ledge location (using the height of the obstacle for the distance) to find the floor. 
 	// If there is a floor, save its location and the back ledges height (using the distance between the back ledge and the floor). 
 	// If no floor was found, invalidate the back floor.
 	 
-	const FHitResult BackFloorCollisionCheck = CheckTraceForBackFloor(TraversalCheckResult, BackLedgeLocationCollisionCheck);
+	const FHitResult BackFloorCollisionCheck = CheckTraceForBackFloor(BackLedgeLocationCollisionCheck);
 	const bool bHasBackFloor = BackFloorCollisionCheck.bBlockingHit;
 
 	if (bHasBackFloor) 
@@ -148,23 +132,39 @@ FTraceResult UTraversalComponent::PerformTrace() const
 		TraversalCheckResult.bHasBackFloor = false;
 	}
 
-	return FTraceResult(true, false);
+	FTraversalChooserInputs MontageChooserInputs = MakeChooserInputs();
+	// Broadcast that the trace has been completed
+	OnTraversalCheckComplete.Broadcast(MontageChooserInputs);
+
+	return FTraceResult(false, false);
 }
 
-FHitResult UTraversalComponent::CheckTraceForFrontLedge(FTraversalCheckResult TraversalCheckResult, FVector FrontLedgeLocationCollisionCheck) const
+FHitResult UTraversalComponent::CheckTraceForFrontLedge(FVector FrontLedgeLocationCollisionCheck) const
 {
 	if (DrawDebug)
 	{
 		DrawDebugLine(GetWorld(), Character->GetActorLocation(), FrontLedgeLocationCollisionCheck, FColor::Red, false, 2.f);
+		DrawDebugSphere(GetWorld(), FrontLedgeLocationCollisionCheck, 10.f, 12, FColor::Red, false, 2.f);
 	}
 
 	FHitResult HitResult;
-	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, Character->GetActorLocation(), FrontLedgeLocationCollisionCheck, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), FCollisionQueryParams(FName(TEXT("")), false, Character));
+
+	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("")), false);
+	Params.AddIgnoredActor(TraversalCheckResult.HitComponent->GetOwner());
+	Params.AddIgnoredActor(Character);
+
+	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, Character->GetActorLocation(), FrontLedgeLocationCollisionCheck, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
+
+	if (DrawDebug && GEngine && bTraceSuccess)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Front Edge Traversal Check: %s"), *HitResult.GetActor()->GetName()));
+	
+	}
 
 	return HitResult;
 }
 
-FHitResult UTraversalComponent::CheckTraceForBackLedge(FTraversalCheckResult TraversalCheckResult, FVector FrontLedgeLocationCollisionCheck, FVector BackLedgeLocationCollisionCheck) const
+FHitResult UTraversalComponent::CheckTraceForBackLedge(FVector FrontLedgeLocationCollisionCheck, FVector BackLedgeLocationCollisionCheck) const
 {
 	if (DrawDebug)
 	{
@@ -172,16 +172,21 @@ FHitResult UTraversalComponent::CheckTraceForBackLedge(FTraversalCheckResult Tra
 	}
 
 	FHitResult HitResult;
-	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), FCollisionQueryParams(FName(TEXT("")), false, Character));
+
+	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("")), false);
+	Params.AddIgnoredActor(TraversalCheckResult.HitComponent->GetOwner());
+	Params.AddIgnoredActor(Character);
+
+	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
 
 	return HitResult;
 }
 
-FHitResult UTraversalComponent::CheckTraceForBackFloor(FTraversalCheckResult TraversalCheckResult, FVector BackLedgeLocationCollisionCheck) const
+FHitResult UTraversalComponent::CheckTraceForBackFloor(FVector BackLedgeLocationCollisionCheck) const
 {
 	// Add a -Z buffer for the trace
-	const FVector ForwardVector = (TraversalCheckResult.BackLedgeLocation - TraversalCheckResult.FrontLedgeLocation).GetSafeNormal();
-	const FVector TraceEndLocation = TraversalCheckResult.BackLedgeNormal * (CapsuleRadius + 2.f) + TraversalCheckResult.BackLedgeLocation + FVector(0.f, 0.f, -1000.f);
+	const FVector BackledgeOffset = TraversalCheckResult.BackLedgeNormal * (CapsuleRadius + 2.f);
+	const FVector TraceEndLocation = BackledgeOffset + TraversalCheckResult.BackLedgeLocation + FVector(0.f, 0.f, -1000.f);
 
 	if (DrawDebug)
 	{
@@ -189,7 +194,12 @@ FHitResult UTraversalComponent::CheckTraceForBackFloor(FTraversalCheckResult Tra
 	}
 
 	FHitResult HitResult;
-	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, BackLedgeLocationCollisionCheck, TraceEndLocation, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), FCollisionQueryParams(FName(TEXT("")), false, Character));
+
+	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("")), false);
+	Params.AddIgnoredActor(TraversalCheckResult.HitComponent->GetOwner());
+	Params.AddIgnoredActor(Character);
+
+	bool bTraceSuccess = GetWorld()->SweepSingleByChannel(HitResult, BackLedgeLocationCollisionCheck, TraceEndLocation, FQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight), Params);
 
 	if (DrawDebug)
 	{
@@ -197,5 +207,26 @@ FHitResult UTraversalComponent::CheckTraceForBackFloor(FTraversalCheckResult Tra
 	}
 
 	return HitResult;
+}
+
+/*
+ * Used by The Chooser Table to Identify Valid Animations
+ */
+
+FTraversalChooserInputs UTraversalComponent::MakeChooserInputs() const
+{
+	FTraversalChooserInputs ChooserInputs = FTraversalChooserInputs();
+	ChooserInputs.bHasBackFloor = TraversalCheckResult.bHasBackFloor;
+	ChooserInputs.bHasBackLedge = TraversalCheckResult.bHasBackLedge;
+	ChooserInputs.bHasFrontLedge = TraversalCheckResult.bHasFrontLedge;
+	ChooserInputs.ObstacleDepth = TraversalCheckResult.ObstacleDepth;
+	ChooserInputs.ObstacleHeight = TraversalCheckResult.ObstacleHeight;
+	ChooserInputs.BackLedgeHeight = TraversalCheckResult.BackLedgeHeight;
+	ChooserInputs.ActionType = TraversalCheckResult.ActionType;
+	ChooserInputs.MovementMode = Character->GetCharacterMovement()->MovementMode;
+	ChooserInputs.Gait = Gait;
+	ChooserInputs.Speed = Character->GetCharacterMovement()->Velocity.Size();
+
+	return ChooserInputs;
 }
 

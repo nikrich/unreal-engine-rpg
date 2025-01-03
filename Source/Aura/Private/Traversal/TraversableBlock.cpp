@@ -100,7 +100,7 @@ void ATraversableBlock::GetLedgeTransforms(FVector HitLocation, FVector ActorLoc
 		return;
 	}
 
-	const FTransform OppositeLedgeTransform = OppositeLedge->FindTransformClosestToWorldLocation(GrabLocation, ESplineCoordinateSpace::World);
+	const FTransform OppositeLedgeTransform = OppositeLedge->FindTransformClosestToWorldLocation(CheckResult.FrontLedgeLocation, ESplineCoordinateSpace::World);
 	const FVector OppositeLedgeLocation = OppositeLedgeTransform.GetLocation();
 	const FVector OppositeLedgeUpVector = OppositeLedgeTransform.GetRotation().GetUpVector();
 
