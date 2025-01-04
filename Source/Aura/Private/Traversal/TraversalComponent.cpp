@@ -231,7 +231,6 @@ void UTraversalComponent::SetBackFloorInfo(FTraversalCheckResult& CheckResult)
 
 FTraversalChooserInputs UTraversalComponent::MakeChooserInputs() const
 {
-	// TODO - Fix Gait and Speed
 	FTraversalChooserInputs ChooserInputs = FTraversalChooserInputs();
 	ChooserInputs.bHasBackFloor = TraversalCheckResult.bHasBackFloor;
 	ChooserInputs.bHasBackLedge = TraversalCheckResult.bHasBackLedge;

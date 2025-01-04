@@ -199,7 +199,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadonly, Category = "Combat")
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Traversal Info")
 	EGait Gait;
 
 public:	
