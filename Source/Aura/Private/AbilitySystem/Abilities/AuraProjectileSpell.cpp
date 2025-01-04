@@ -24,7 +24,7 @@ AAuraProjectile* UAuraProjectileSpell::SpawnProjectile()
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
 		FVector Direction = CombatInterface->GetForwardVector();
 		FRotator Rotation = CombatInterface->GetForwardVector().Rotation();
-		Rotation.Pitch = 0.0f;
+		//Rotation.Pitch = 0.0f;
 
 		UE_LOG(LogTemp, Warning, TEXT("SpawnProjectile: %s"), *Direction.ToString());
 		
