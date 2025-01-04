@@ -52,9 +52,14 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	UCharacterClassInfo* CharacterClassInfo = UAuraAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
 
 	// Get Damage by Caller Magnitude
+	float Damage = 0.f;
 
-	float Damage = Spec.GetSetByCallerMagnitude(FAuraGameplayTags::Get().Damage);
-
+	for (const auto& DamageTypePair : FAuraGameplayTags::Get().DamageTypesToResistances)
+	{
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypePair.Key);
+		Damage += DamageTypeValue;
+	}
+	
 	// Capture Blackchance on Target and Determine if there was a succesful block
 	
 	float TargetBlockChance = 0.f;

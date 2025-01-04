@@ -68,7 +68,11 @@ AAuraProjectile* UAuraProjectileSpell::SpawnProjectile()
 
 		// Add Damage to SpecHandle
 		FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, Damage.GetValueAtLevel(10));
+
+		for (const auto& DamageType : DamageTypes)
+		{
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType.Key, DamageType.Value.GetValueAtLevel(GetAbilityLevel()));
+		}
 
 		Projectile->FinishSpawning(SpawnTransform);
 		return Projectile;
