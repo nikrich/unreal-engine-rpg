@@ -178,6 +178,7 @@ void UTraversalComponent::SetBackLedgeInfo(FTraversalCheckResult& CheckResult)
 	if (bIsBlockedFromRunningToBackLedge)
 	{
 		TraversalCheckResult.bHasBackLedge = false;
+		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, HitResult.ImpactPoint));
 	}
 	else
 	{
