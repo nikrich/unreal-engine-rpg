@@ -82,6 +82,15 @@ public:
 	// See comments above for the TStaticFuncPtr
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay Tags")
+	TArray<FGameplayTag> PrimaryAttributes;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay Tags")
+	TArray<FGameplayTag> SecondaryAttributes;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay Tags")
+	TArray<FGameplayTag> ResistanceAttributes;
+
 	/*
 	 * Vital Attributes
 	 */
@@ -170,6 +179,70 @@ public:
 	FEffectProperties EffectProperties;
 
 	/*
+	 * Resistance Attributes
+	 */
+
+	UPROPERTY(ReplicatedUsing = OnRep_FireResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData FireResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, FireResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_BallisticResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData BallisticResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, BallisticResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_EnergyResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData EnergyResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, EnergyResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_KineticResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData KineticResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, KineticResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_PiercingResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData PiercingResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, PiercingResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_ToxicResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData ToxicResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ToxicResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_RadiationResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData RadiationResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, RadiationResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_ShockResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData ShockResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ShockResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_DigitalResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData DigitalResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, DigitalResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_ViralResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData ViralResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ViralResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_SonicResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData SonicResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, SonicResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_PsychologicalResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData PsychologicalResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, PsychologicalResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_NaniteResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData NaniteResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, NaniteResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_AcidResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData AcidResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, AcidResistance)
+
+	UPROPERTY(ReplicatedUsing = OnRep_BiologicalResistance, BlueprintReadOnly, Category = "Resistance Attributes")
+	FGameplayAttributeData BiologicalResistance;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, BiologicalResistance)
+
+	/*
 	 * Vital Attributes Function
 	 */
 
@@ -228,6 +301,56 @@ public:
 
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
+
+	/*
+	 * Resistance Attributes Function
+	 */
+
+	UFUNCTION()
+	void OnRep_FireResistance(const FGameplayAttributeData& OldFireResistance);
+
+	UFUNCTION()
+	void OnRep_BallisticResistance(const FGameplayAttributeData& OldBallisticResistance);
+
+	UFUNCTION()
+	void OnRep_EnergyResistance(const FGameplayAttributeData& OldEnergyResistance);
+
+	UFUNCTION()
+	void OnRep_KineticResistance(const FGameplayAttributeData& OldKineticResistance);
+
+	UFUNCTION()
+	void OnRep_PiercingResistance(const FGameplayAttributeData& OldPiercingResistance);
+
+	UFUNCTION()
+	void OnRep_ToxicResistance(const FGameplayAttributeData& OldToxicResistance);
+
+	UFUNCTION()
+	void OnRep_RadiationResistance(const FGameplayAttributeData& OldRadiationResistance);
+
+	UFUNCTION()
+	void OnRep_ShockResistance(const FGameplayAttributeData& OldShockResistance);
+
+	UFUNCTION()
+	void OnRep_DigitalResistance(const FGameplayAttributeData& OldDigitalResistance);
+
+	UFUNCTION()
+	void OnRep_ViralResistance(const FGameplayAttributeData& OldViralResistance);
+
+	UFUNCTION()
+	void OnRep_SonicResistance(const FGameplayAttributeData& OldSonicResistance);
+
+	UFUNCTION()
+	void OnRep_PsychologicalResistance(const FGameplayAttributeData& OldPsychologicalResistance);
+
+	UFUNCTION()
+	void OnRep_NaniteResistance(const FGameplayAttributeData& OldNaniteResistance);
+
+	UFUNCTION()
+	void OnRep_AcidResistance(const FGameplayAttributeData& OldAcidResistance);
+
+	UFUNCTION()
+	void OnRep_BiologicalResistance(const FGameplayAttributeData& OldBiologicalResistance);
+
 
 private:
 

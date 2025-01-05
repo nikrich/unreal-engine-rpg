@@ -12,6 +12,7 @@
 #include "AbilitySystemComponent.h"
 #include <AuraAbilityTypes.h>
 #include <GameplayEffectTypes.h>
+#include <AbilitySystem/AuraAttributeSet.h>
 
 UOverlayWidgetController* UAuraAbilitySystemLibrary::GetOverlayWidgetController(UObject* WorldContextObject)
 {
@@ -21,7 +22,7 @@ UOverlayWidgetController* UAuraAbilitySystemLibrary::GetOverlayWidgetController(
 		{
 			AAuraPlayerState* PlayerState = PlayerController->GetPlayerState<AAuraPlayerState>();
 			UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-			UAttributeSet* AttributeSet = PlayerState->GetAttributeSet();
+			UAuraAttributeSet* AttributeSet = Cast<UAuraAttributeSet>(PlayerState->GetAttributeSet());
 
 			const FWidgetControllerParams WidgetControlllerParams(PlayerController, PlayerState, AbilitySystemComponent, AttributeSet);
 			return AuraHUD->GetOverlayWidgetController(WidgetControlllerParams);
@@ -39,7 +40,7 @@ UAttributeMenuWidgetController* UAuraAbilitySystemLibrary::GetAttributeMenuWidge
 		{
 			AAuraPlayerState* PlayerState = PlayerController->GetPlayerState<AAuraPlayerState>();
 			UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-			UAttributeSet* AttributeSet = PlayerState->GetAttributeSet();
+			UAuraAttributeSet* AttributeSet = Cast<UAuraAttributeSet>(PlayerState->GetAttributeSet());
 
 			const FWidgetControllerParams WidgetControlllerParams(PlayerController, PlayerState, AbilitySystemComponent, AttributeSet);
 			return AuraHUD->GetAttributeMenuWidgetController(WidgetControlllerParams);
