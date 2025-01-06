@@ -11,12 +11,19 @@
 
 UExecCalc_Damage::UExecCalc_Damage()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().ArmorDef);
-	RelevantAttributesToCapture.Add(DamageStatics().ArmorPenetrationDef);
-	RelevantAttributesToCapture.Add(DamageStatics().BlockChanceDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitResistanceDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitChanceDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitDamageDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_StaminaDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_ArmorRatingDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_ArmorPenetrationDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_EvasionDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_AccuracyDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_CriticalChanceDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_CriticalHitResistanceDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_CriticalDamageDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_HackingPowerDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_PersuasionDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_StealthDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_MaxHealthDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Secondary_MaxEnergyDef);
 }
 
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -63,7 +70,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// Capture Blackchance on Target and Determine if there was a succesful block
 	
 	float TargetBlockChance = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluationParameters, TargetBlockChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_EvasionDef, EvaluationParameters, TargetBlockChance);
 	TargetBlockChance = FMath::Clamp(TargetBlockChance, 0.f, 100.f);
 	
 	bool bBlocked =  FMath::RandRange(0.f, 100.f) <= TargetBlockChance;
@@ -76,13 +83,13 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// Armor - Reduces the damage of a hit
 
 	float TargetArmor = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, TargetArmor);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_ArmorRatingDef, EvaluationParameters, TargetArmor);
 	TargetArmor = FMath::Clamp(TargetArmor, 0.f, 100.f);
 
 	// Armor Penetration - a percentage of the Target's Armor that is ignored
 
 	float SourceArmorPenetration = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluationParameters, SourceArmorPenetration);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_ArmorPenetrationDef, EvaluationParameters, SourceArmorPenetration);
 	SourceArmorPenetration = FMath::Clamp(SourceArmorPenetration, 0.f, 100.f);
 
 	FRealCurve* ArmorPenetrationCurve = CharacterClassInfo->DamageCalculationCoeffients->FindCurve(FName("ArmorPenetration"), FString());
@@ -98,15 +105,15 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// Critical Hit - Increases the damage of a hit
 
 	float SourceCriticalHitChance = 0;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitChanceDef, EvaluationParameters, SourceCriticalHitChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_CriticalChanceDef, EvaluationParameters, SourceCriticalHitChance);
 	SourceCriticalHitChance = FMath::Clamp(SourceCriticalHitChance, 0.f, 100.f);
 
 	float TargetCriticalHitResistance = 0;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitResistanceDef, EvaluationParameters, TargetCriticalHitResistance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_CriticalHitResistanceDef, EvaluationParameters, TargetCriticalHitResistance);
 	TargetCriticalHitResistance = FMath::Clamp(TargetCriticalHitResistance, 0.f, 100.f);
 
 	float SourceCriticalHitDamage = 0;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitDamageDef, EvaluationParameters, SourceCriticalHitDamage);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_CriticalDamageDef, EvaluationParameters, SourceCriticalHitDamage);
 	SourceCriticalHitDamage = FMath::Clamp(SourceCriticalHitDamage, 0.f, 100.f);
 
 	FRealCurve* CriticalHitResistanceCurve = CharacterClassInfo->DamageCalculationCoeffients->FindCurve(FName("CriticalHitResistance"), FString());

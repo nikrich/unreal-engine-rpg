@@ -42,28 +42,36 @@ void AAuraEnemy::BeginPlay()
 	auto AttributeSetClass = TSubclassOf<UAuraAttributeSet>(UAuraAttributeSet::StaticClass());
 
 	if (const UAuraAttributeSet* AuraAttributes = Cast<UAuraAttributeSet>(AbilitySystemComponent->GetAttributeSet(AttributeSetClass))) {
-		float StrengthAttribute = AuraAttributes->GetStrengthAttribute().GetNumericValue(AuraAttributes);
-		float IntelligenceAttribute = AuraAttributes->GetIntelligenceAttribute().GetNumericValue(AuraAttributes);
-		float ResilienceAttribute = AuraAttributes->GetResilienceAttribute().GetNumericValue(AuraAttributes);
-		float VigorAttribute = AuraAttributes->GetVigorAttribute().GetNumericValue(AuraAttributes);
-
-		UE_LOG(LogTemp, Warning, TEXT("Strength: %f"), StrengthAttribute);
+		float BodyAttribute = AuraAttributes->GetPrimary_BodyAttribute().GetNumericValue(AuraAttributes);
+		float AgilityAttribute = AuraAttributes->GetPrimary_AgilityAttribute().GetNumericValue(AuraAttributes);
+		float IntelligenceAttribute = AuraAttributes->GetPrimary_IntellectAttribute().GetNumericValue(AuraAttributes);
+		float CharismaAttribute = AuraAttributes->GetPrimary_CharismaAttribute().GetNumericValue(AuraAttributes);
+		float CyberAffinityAttribute = AuraAttributes->GetPrimary_CyberAffinityAttribute().GetNumericValue(AuraAttributes);
+		float PerceptionAttribute = AuraAttributes->GetPrimary_PerceptionAttribute().GetNumericValue(AuraAttributes);
+		float WillpowerAttribute = AuraAttributes->GetPrimary_WillpowerAttribute().GetNumericValue(AuraAttributes);
+		float LuckAttribute = AuraAttributes->GetPrimary_LuckAttribute().GetNumericValue(AuraAttributes);
+	
+		UE_LOG(LogTemp, Warning, TEXT("Body: %f"), BodyAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Agility: %f"), AgilityAttribute);
 		UE_LOG(LogTemp, Warning, TEXT("Intelligence: %f"), IntelligenceAttribute);
-		UE_LOG(LogTemp, Warning, TEXT("Resilience: %f"), ResilienceAttribute);
-		UE_LOG(LogTemp, Warning, TEXT("Vigor: %f"), VigorAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Charisma: %f"), CharismaAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("CyberAffinity: %f"), CyberAffinityAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Perception: %f"), PerceptionAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Willpower: %f"), WillpowerAttribute);
+		UE_LOG(LogTemp, Warning, TEXT("Luck: %f"), LuckAttribute);
 
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
 			OnHealthChanged.Broadcast(Data.NewValue);
 			});
 
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributes->GetSecondary_MaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data) {
 			OnMaxHealthChanged.Broadcast(Data.NewValue);
 			});
 
 		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::HitReactTagChanged);
 
 		OnHealthChanged.Broadcast(AuraAttributes->GetHealth());
-		OnMaxHealthChanged.Broadcast(AuraAttributes->GetMaxHealth());
+		OnMaxHealthChanged.Broadcast(AuraAttributes->GetSecondary_MaxHealth());
 	}
 }
 

@@ -9,21 +9,35 @@
 
 struct AuraDamageStatics
 {
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(ArmorPenetration);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(BlockChance);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitResistance);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitChance);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitDamage);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Stamina);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_ArmorRating);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_ArmorPenetration);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Evasion);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Accuracy);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_CriticalChance);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_CriticalHitResistance);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_CriticalDamage);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_HackingPower);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Persuasion);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Stealth);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_MaxHealth);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_MaxEnergy);
 
 	AuraDamageStatics()
 	{
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Armor, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, ArmorPenetration, Source, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, BlockChance, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, CriticalHitResistance, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, CriticalHitChance, Source, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, CriticalHitDamage, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Stamina, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_ArmorRating, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_ArmorPenetration, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Evasion, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Accuracy, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_CriticalChance, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_CriticalHitResistance, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_CriticalDamage, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_HackingPower, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Persuasion, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Stealth, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_MaxHealth, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_MaxEnergy, Source, false);
 	}
 };
 

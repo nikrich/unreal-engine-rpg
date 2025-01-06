@@ -20,23 +20,31 @@ public:
 
 	// Primary Attributes
 
-	FGameplayTag Attributes_Primary_Strength;
-	FGameplayTag Attributes_Primary_Intelligence;
-	FGameplayTag Attributes_Primary_Resilience;
-	FGameplayTag Attributes_Primary_Vigor;
+	FGameplayTag Attributes_Primary_Body; // Physical strength, endurance, and toughness. Affects melee damage, health, and resistance to physical damage.
+	FGameplayTag Attributes_Primary_Agility; // Dexterity, speed, and reflexes. Affects movement speed, evasion, and ranged weapon accuracy.
+	FGameplayTag Attributes_Primary_Intellect; // Cognitive and problem-solving ability. Affects hacking, crafting, and data analysis.
+	FGameplayTag Attributes_Primary_Charisma; // Social skills and persuasion. Affects dialogue options, influence, and reputation.
+	FGameplayTag Attributes_Primary_CyberAffinity; // Ability to handle cybernetic implants and tech upgrades. Affects cybernetic implants, hacking defense, and digital resistance.
+	FGameplayTag Attributes_Primary_Perception; // Awareness of surroundings and attention to detail. Affects critical hit chance, stealth detection, and spotting traps.
+	FGameplayTag Attributes_Primary_Willpower; // Mental resilience and focus. Affects resistance to psychological and digital attacks.
+	FGameplayTag Attributes_Primary_Luck; // Random chance and serendipity. Affects critical hits, loot quality, and random encounters.
+
 
 	// Secondary Attributes
-
-	FGameplayTag Attributes_Secondary_Armor;
-	FGameplayTag Attributes_Secondary_ArmorPenetration;
-	FGameplayTag Attributes_Secondary_BlockChance;
-	FGameplayTag Attributes_Secondary_CriticalHitChance;
-	FGameplayTag Attributes_Secondary_CriticalHitDamage;
-	FGameplayTag Attributes_Secondary_CriticalHitResistance;
-	FGameplayTag Attributes_Secondary_HealthRegeneration;
-	FGameplayTag Attributes_Secondary_ManaRegeneration;
-	FGameplayTag Attributes_Secondary_MaxHealth;
-	FGameplayTag Attributes_Secondary_MaxMana;
+	
+	FGameplayTag Attributes_Stamina; // The energy pool used for actions like sprinting, melee. Affects endurance during combat and exploration.
+	FGameplayTag Attributes_ArmorRating; // Resistance to physical damage. Reduces damage taken from physical attacks.
+	FGameplayTag Attributes_ArmorPeneration; // The ability to bypass enemy armor. Increases damage dealt to armored targets.
+	FGameplayTag Attributes_Evasion; // The chance to dodge incoming attacks. Affects survivability in combat.
+	FGameplayTag Attributes_Accuracy; // The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks.
+	FGameplayTag Attributes_CriticalChance; // The chance to deal extra damage on attacks. Increases likelihood of critical hits.
+	FGameplayTag Attributes_CriticalHitResistance; // The ability to resist critical hits. Reduces extra damage taken from critical hits.
+	FGameplayTag Attributes_CriticalDamage; // The amount of extra damage dealt on critical hits.
+	FGameplayTag Attributes_HackingPower; // The ability to break through digital defenses. Affects success rate in hacking mini-games.
+	FGameplayTag Attributes_Persuasion; // The ability to influence NPCs in dialogue. Unlocks dialogue options and reduces hostility.
+	FGameplayTag Attributes_Stealth; // The ability to avoid detection. Affects sneaking and hiding from enemies.
+	FGameplayTag Attributes_MaxHealth; // The amount of damage a character can take before dying. Determines maximum health pool.
+	FGameplayTag Attributes_MaxEnergy; // The amount of energy a character can spend on abilities. Determines maximum mana pool.
 
 	// Resistances
 
