@@ -44,7 +44,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 
 	TagsToAttributes.Add(GameplayTags.Attributes_Stamina, GetSecondary_StaminaAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_ArmorRating, GetSecondary_ArmorRatingAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_ArmorPeneration, GetSecondary_ArmorPenetrationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_ArmorPenetration, GetSecondary_ArmorPenetrationAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Evasion, GetSecondary_EvasionAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Accuracy, GetSecondary_AccuracyAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_CriticalChance, GetSecondary_CriticalChanceAttribute);
@@ -57,7 +57,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 
 	SecondaryAttributes.Add(GameplayTags.Attributes_Stamina);
 	SecondaryAttributes.Add(GameplayTags.Attributes_ArmorRating);
-	SecondaryAttributes.Add(GameplayTags.Attributes_ArmorPeneration);
+	SecondaryAttributes.Add(GameplayTags.Attributes_ArmorPenetration);
 	SecondaryAttributes.Add(GameplayTags.Attributes_Evasion);
 	SecondaryAttributes.Add(GameplayTags.Attributes_Accuracy);
 	SecondaryAttributes.Add(GameplayTags.Attributes_CriticalChance);

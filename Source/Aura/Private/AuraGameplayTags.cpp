@@ -23,7 +23,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	
 	GameplayTags.Attributes_Stamina = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Stamina"), FString("The energy pool used for actions like sprinting, melee. Affects endurance during combat and exploration."));
 	GameplayTags.Attributes_ArmorRating = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorRating"), FString("Resistance to physical damage. Reduces damage taken from physical attacks."));
-	GameplayTags.Attributes_ArmorPeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorPeneration"), FString("The ability to bypass enemy armor. Increases damage dealt to armored targets."));
+	GameplayTags.Attributes_ArmorPenetration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorPenetration"), FString("The ability to bypass enemy armor. Increases damage dealt to armored targets."));
 	GameplayTags.Attributes_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Evasion"), FString("The chance to dodge incoming attacks. Affects survivability in combat."));
 	GameplayTags.Attributes_Accuracy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Accuracy"), FString("The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks."));
 	GameplayTags.Attributes_CriticalChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.CriticalChance"), FString("The chance to deal extra damage on attacks. Increases likelihood of critical hits."));

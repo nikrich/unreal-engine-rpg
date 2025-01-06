@@ -34,7 +34,7 @@ public:
 	
 	FGameplayTag Attributes_Stamina; // The energy pool used for actions like sprinting, melee. Affects endurance during combat and exploration.
 	FGameplayTag Attributes_ArmorRating; // Resistance to physical damage. Reduces damage taken from physical attacks.
-	FGameplayTag Attributes_ArmorPeneration; // The ability to bypass enemy armor. Increases damage dealt to armored targets.
+	FGameplayTag Attributes_ArmorPenetration; // The ability to bypass enemy armor. Increases damage dealt to armored targets.
 	FGameplayTag Attributes_Evasion; // The chance to dodge incoming attacks. Affects survivability in combat.
 	FGameplayTag Attributes_Accuracy; // The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks.
 	FGameplayTag Attributes_CriticalChance; // The chance to deal extra damage on attacks. Increases likelihood of critical hits.
