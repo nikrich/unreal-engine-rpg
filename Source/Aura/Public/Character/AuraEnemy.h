@@ -68,7 +68,7 @@ protected:
 	int32 Level = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chacracter Class Defaults")
-	ECharacterClass CharacterClass = ECharacterClass::Warrior;
+	ECharacterClass CharacterClass = ECharacterClass::Bruiser;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chacracter Class Defaults")
 	TObjectPtr<UWidgetComponent> HealthBar;
