@@ -17,13 +17,13 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_EvasionDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_AccuracyDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_CriticalChanceDef);
-	RelevantAttributesToCapture.Add(DamageStatics().Secondary_CriticalHitResistanceDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_CriticalDamageDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_HackingPowerDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_PersuasionDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_StealthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_MaxHealthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_MaxEnergyDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_CriticalHitDef);
 }
 
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -109,7 +109,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	SourceCriticalHitChance = FMath::Clamp(SourceCriticalHitChance, 0.f, 100.f);
 
 	float TargetCriticalHitResistance = 0;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Secondary_CriticalHitResistanceDef, EvaluationParameters, TargetCriticalHitResistance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Resistance_CriticalHitDef, EvaluationParameters, TargetCriticalHitResistance);
 	TargetCriticalHitResistance = FMath::Clamp(TargetCriticalHitResistance, 0.f, 100.f);
 
 	float SourceCriticalHitDamage = 0;

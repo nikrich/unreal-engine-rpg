@@ -38,7 +38,6 @@ public:
 	FGameplayTag Attributes_Evasion; // The chance to dodge incoming attacks. Affects survivability in combat.
 	FGameplayTag Attributes_Accuracy; // The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks.
 	FGameplayTag Attributes_CriticalChance; // The chance to deal extra damage on attacks. Increases likelihood of critical hits.
-	FGameplayTag Attributes_CriticalHitResistance; // The ability to resist critical hits. Reduces extra damage taken from critical hits.
 	FGameplayTag Attributes_CriticalDamage; // The amount of extra damage dealt on critical hits.
 	FGameplayTag Attributes_HackingPower; // The ability to break through digital defenses. Affects success rate in hacking mini-games.
 	FGameplayTag Attributes_Persuasion; // The ability to influence NPCs in dialogue. Unlocks dialogue options and reduces hostility.
@@ -63,6 +62,7 @@ public:
 	FGameplayTag Attributes_Resistances_Nanite;
 	FGameplayTag Attributes_Resistances_Acid;
 	FGameplayTag Attributes_Resistances_Biological;
+	FGameplayTag Attributes_CriticalHitResistance;
 
 
 	// Input Tags

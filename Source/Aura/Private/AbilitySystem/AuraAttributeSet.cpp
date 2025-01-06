@@ -44,6 +44,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 
 	TagsToAttributes.Add(GameplayTags.Attributes_Stamina, GetSecondary_StaminaAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_ArmorRating, GetSecondary_ArmorRatingAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_ArmorPeneration, GetSecondary_ArmorPenetrationAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Evasion, GetSecondary_EvasionAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Accuracy, GetSecondary_AccuracyAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_CriticalChance, GetSecondary_CriticalChanceAttribute);
@@ -56,6 +57,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 
 	SecondaryAttributes.Add(GameplayTags.Attributes_Stamina);
 	SecondaryAttributes.Add(GameplayTags.Attributes_ArmorRating);
+	SecondaryAttributes.Add(GameplayTags.Attributes_ArmorPeneration);
 	SecondaryAttributes.Add(GameplayTags.Attributes_Evasion);
 	SecondaryAttributes.Add(GameplayTags.Attributes_Accuracy);
 	SecondaryAttributes.Add(GameplayTags.Attributes_CriticalChance);
@@ -85,6 +87,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Nanite, GetResistance_NaniteAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Acid, GetResistance_AcidAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Biological, GetResistance_BiologicalAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_CriticalHitResistance, GetResistance_CriticalHitAttribute);
 
 	ResistanceAttributes.Add(GameplayTags.Attributes_Resistances_Fire);
 	ResistanceAttributes.Add(GameplayTags.Attributes_Resistances_Ballistic);
@@ -101,6 +104,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 	ResistanceAttributes.Add(GameplayTags.Attributes_Resistances_Nanite);
 	ResistanceAttributes.Add(GameplayTags.Attributes_Resistances_Acid);
 	ResistanceAttributes.Add(GameplayTags.Attributes_Resistances_Biological);
+	ResistanceAttributes.Add(GameplayTags.Attributes_CriticalHitResistance);
 
 }
 
@@ -132,7 +136,6 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_Evasion, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_Accuracy, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_CriticalChance, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_CriticalHitResistance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_CriticalDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_HackingPower, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Secondary_Persuasion, COND_None, REPNOTIFY_Always);
@@ -157,6 +160,7 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Resistance_Nanite, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Resistance_Acid, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Resistance_Biological, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Resistance_CriticalHit, COND_None, REPNOTIFY_Always);
 }
 
 void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -345,11 +349,6 @@ void UAuraAttributeSet::OnRep_Secondary_CriticalChance(const FGameplayAttributeD
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Secondary_CriticalChance, OldCriticalChance);
 }
 
-void UAuraAttributeSet::OnRep_Secondary_CriticalHitResistance(const FGameplayAttributeData& OldCriticalHitResistance)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Secondary_CriticalHitResistance, OldCriticalHitResistance);
-}
-
 void UAuraAttributeSet::OnRep_Secondary_CriticalDamage(const FGameplayAttributeData& OldCriticalDamage)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Secondary_CriticalDamage, OldCriticalDamage);
@@ -459,6 +458,10 @@ void UAuraAttributeSet::OnRep_BiologicalResistance(const FGameplayAttributeData&
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Resistance_Biological, OldBiologicalResistance);
 }
 
+void UAuraAttributeSet::OnRep_Resistance_CriticalHit(const FGameplayAttributeData& OldCriticalHitResistance)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Resistance_CriticalHit, OldCriticalHitResistance);
+}
 
 void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props)
 {

@@ -176,10 +176,6 @@ public:
 	FGameplayAttributeData Secondary_CriticalChance;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Secondary_CriticalChance)
 
-	UPROPERTY(ReplicatedUsing = OnRep_Secondary_CriticalHitResistance, BlueprintReadOnly, Category = "Secondary Attributes")
-	FGameplayAttributeData Secondary_CriticalHitResistance;
-	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Secondary_CriticalHitResistance)
-
 	UPROPERTY(ReplicatedUsing = OnRep_Secondary_CriticalDamage, BlueprintReadOnly, Category = "Secondary Attributes")
 	FGameplayAttributeData Secondary_CriticalDamage;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Secondary_CriticalDamage)
@@ -272,6 +268,10 @@ public:
 	FGameplayAttributeData Resistance_Biological;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Resistance_Biological)
 
+	UPROPERTY(ReplicatedUsing = OnRep_Resistance_CriticalHit, BlueprintReadOnly, Category = "Secondary Attributes")
+	FGameplayAttributeData Resistance_CriticalHit;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Resistance_CriticalHit)
+
 	/*
 	 * Vital Attributes Function
 	 */
@@ -332,9 +332,6 @@ public:
 
 	UFUNCTION()
 	void OnRep_Secondary_CriticalChance(const FGameplayAttributeData& OldCriticalChance);
-
-	UFUNCTION()
-	void OnRep_Secondary_CriticalHitResistance(const FGameplayAttributeData& OldCriticalHitResistance);
 
 	UFUNCTION()
 	void OnRep_Secondary_CriticalDamage(const FGameplayAttributeData& OldCriticalDamage);
@@ -402,6 +399,9 @@ public:
 
 	UFUNCTION()
 	void OnRep_BiologicalResistance(const FGameplayAttributeData& OldBiologicalResistance);
+
+	UFUNCTION()
+	void OnRep_Resistance_CriticalHit(const FGameplayAttributeData& OldCriticalHitResistance);
 
 
 private:

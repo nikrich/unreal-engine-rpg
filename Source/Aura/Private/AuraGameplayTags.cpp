@@ -10,48 +10,48 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 {
 	// Primary Attributes
 
-	GameplayTags.Attributes_Primary_Body = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Accuracy"), FString("The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks."));
-	GameplayTags.Attributes_Primary_Agility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Agility"), FString("Dexterity, speed, and reflexes. Affects movement speed, evasion, and ranged weapon accuracy."));
-	GameplayTags.Attributes_Primary_Intellect = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Intellect"), FString("Cognitive and problem-solving ability. Affects hacking, crafting, and data analysis."));
-	GameplayTags.Attributes_Primary_Charisma = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Charisma"), FString("Social skills and persuasion. Affects dialogue options, influence, and reputation."));
-	GameplayTags.Attributes_Primary_CyberAffinity = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.CyberAffinity"), FString("Ability to handle cybernetic implants and tech upgrades. Affects cybernetic implants, hacking defense, and digital resistance."));
-	GameplayTags.Attributes_Primary_Perception = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Perception"), FString("Awareness of surroundings and attention to detail. Affects critical hit chance, stealth detection, and spotting traps."));
-	GameplayTags.Attributes_Primary_Willpower = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Willpower"), FString("Mental resilience and focus. Affects resistance to psychological and digital attacks."));
-	GameplayTags.Attributes_Primary_Luck = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Luck"), FString("Random chance and serendipity. Affects critical hits, loot quality, and random encounters."));
+	GameplayTags.Attributes_Primary_Body = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Body"), FString("Physical strength, endurance, and toughness. Affects melee damage, health, and resistance to physical damage."));
+	GameplayTags.Attributes_Primary_Agility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Agility"), FString("Dexterity, speed, and reflexes. Affects movement speed, evasion, and ranged weapon accuracy."));
+	GameplayTags.Attributes_Primary_Intellect = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Intellect"), FString("Cognitive and problem-solving ability. Affects hacking, crafting, and data analysis."));
+	GameplayTags.Attributes_Primary_Charisma = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Charisma"), FString("Social skills and persuasion. Affects dialogue options, influence, and reputation."));
+	GameplayTags.Attributes_Primary_CyberAffinity = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.CyberAffinity"), FString("Ability to handle cybernetic implants and tech upgrades. Affects cybernetic implants, hacking defense, and digital resistance."));
+	GameplayTags.Attributes_Primary_Perception = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Perception"), FString("Awareness of surroundings and attention to detail. Affects critical hit chance, stealth detection, and spotting traps."));
+	GameplayTags.Attributes_Primary_Willpower = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Willpower"), FString("Mental resilience and focus. Affects resistance to psychological and digital attacks."));
+	GameplayTags.Attributes_Primary_Luck = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Luck"), FString("Random chance and serendipity. Affects critical hits, loot quality, and random encounters."));
 
 	// Secondary Attributes
 	
-	GameplayTags.Attributes_Stamina = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Stamina"), FString("The energy pool used for actions like sprinting, melee. Affects endurance during combat and exploration."));
-	GameplayTags.Attributes_ArmorRating = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.ArmorRating"), FString("Resistance to physical damage. Reduces damage taken from physical attacks."));
-	GameplayTags.Attributes_ArmorPeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.ArmorPeneration"), FString("The ability to bypass enemy armor. Increases damage dealt to armored targets."));
-	GameplayTags.Attributes_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Evasion"), FString("The chance to dodge incoming attacks. Affects survivability in combat."));
-	GameplayTags.Attributes_Accuracy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Accuracy"), FString("The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks."));
-	GameplayTags.Attributes_CriticalChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.CriticalChance"), FString("The chance to deal extra damage on attacks. Increases likelihood of critical hits."));
-	GameplayTags.Attributes_CriticalHitResistance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.CriticalHitResistance"), FString("The ability to resist critical hits. Reduces extra damage taken from critical hits."));
-	GameplayTags.Attributes_CriticalDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.CriticalDamage"), FString("The amount of extra damage dealt on critical hits."));
-	GameplayTags.Attributes_HackingPower = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.HackingPower"), FString("The ability to break through digital defenses. Affects success rate in hacking mini-games."));
-	GameplayTags.Attributes_Persuasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Persuasion"), FString("The ability to influence NPCs in dialogue. Unlocks dialogue options and reduces hostility."));
-	GameplayTags.Attributes_Stealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Stealth"), FString("The ability to avoid detection. Affects sneaking and hiding from enemies."));
-	GameplayTags.Attributes_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.MaxHealth"), FString("The amount of damage a character can take before dying. Determines maximum health pool."));
-	GameplayTags.Attributes_MaxEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.MaxEnergy"), FString("The amount of energy a character can spend on abilities. Determines maximum mana pool."));
+	GameplayTags.Attributes_Stamina = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Stamina"), FString("The energy pool used for actions like sprinting, melee. Affects endurance during combat and exploration."));
+	GameplayTags.Attributes_ArmorRating = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorRating"), FString("Resistance to physical damage. Reduces damage taken from physical attacks."));
+	GameplayTags.Attributes_ArmorPeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.ArmorPeneration"), FString("The ability to bypass enemy armor. Increases damage dealt to armored targets."));
+	GameplayTags.Attributes_Evasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Evasion"), FString("The chance to dodge incoming attacks. Affects survivability in combat."));
+	GameplayTags.Attributes_Accuracy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Accuracy"), FString("The ability to hit a target with ranged weapons. Affects hit chance for ranged attacks."));
+	GameplayTags.Attributes_CriticalChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.CriticalChance"), FString("The chance to deal extra damage on attacks. Increases likelihood of critical hits."));
+	GameplayTags.Attributes_CriticalDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.CriticalDamage"), FString("The amount of extra damage dealt on critical hits."));
+	GameplayTags.Attributes_HackingPower = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.HackingPower"), FString("The ability to break through digital defenses. Affects success rate in hacking mini-games."));
+	GameplayTags.Attributes_Persuasion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Persuasion"), FString("The ability to influence NPCs in dialogue. Unlocks dialogue options and reduces hostility."));
+	GameplayTags.Attributes_Stealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Stealth"), FString("The ability to avoid detection. Affects sneaking and hiding from enemies."));
+	GameplayTags.Attributes_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxHealth"), FString("The amount of damage a character can take before dying. Determines maximum health pool."));
+	GameplayTags.Attributes_MaxEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxEnergy"), FString("The amount of energy a character can spend on abilities. Determines maximum mana pool."));
 
 	// Resistances
 
-	GameplayTags.Attributes_Resistances_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Fire"), FString("Reduces Fire Damage Taken"));
-	GameplayTags.Attributes_Resistances_Ballistic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Ballistic"), FString("Reduces Ballistic Damage Taken"));
-	GameplayTags.Attributes_Resistances_Energy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Energy"), FString("Reduces Energy Damage Taken"));
-	GameplayTags.Attributes_Resistances_Kinetic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Kinetic"), FString("Reduces Kinetic Damage Taken"));
-	GameplayTags.Attributes_Resistances_Piercing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Piercing"), FString("Reduces Piercing Damage Taken"));
-	GameplayTags.Attributes_Resistances_Toxic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Toxic"), FString("Reduces Toxic Damage Taken"));
-	GameplayTags.Attributes_Resistances_Radiation = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Radiation"), FString("Reduces Radiation Damage Taken"));
-	GameplayTags.Attributes_Resistances_Shock = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Shock"), FString("Reduces Shock Damage Taken"));
-	GameplayTags.Attributes_Resistances_Digital = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Digital"), FString("Reduces Digital Damage Taken"));
-	GameplayTags.Attributes_Resistances_Viral = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Viral"), FString("Reduces Viral Damage Taken"));
-	GameplayTags.Attributes_Resistances_Sonic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Sonic"), FString("Reduces Sonic Damage Taken"));
-	GameplayTags.Attributes_Resistances_Psychological = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Psychological"), FString("Reduces Psychological Damage Taken"));
-	GameplayTags.Attributes_Resistances_Nanite = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Nanite"), FString("Reduces Nanite Damage Taken"));
-	GameplayTags.Attributes_Resistances_Acid = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Acid"), FString("Reduces Acid Damage Taken"));
-	GameplayTags.Attributes_Resistances_Biological = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistances.Biological"), FString("Reduces Biological Damage Taken"));
+	GameplayTags.Attributes_Resistances_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Fire"), FString("Reduces Fire Damage Taken"));
+	GameplayTags.Attributes_Resistances_Ballistic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Ballistic"), FString("Reduces Ballistic Damage Taken"));
+	GameplayTags.Attributes_Resistances_Energy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Energy"), FString("Reduces Energy Damage Taken"));
+	GameplayTags.Attributes_Resistances_Kinetic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Kinetic"), FString("Reduces Kinetic Damage Taken"));
+	GameplayTags.Attributes_Resistances_Piercing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Piercing"), FString("Reduces Piercing Damage Taken"));
+	GameplayTags.Attributes_Resistances_Toxic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Toxic"), FString("Reduces Toxic Damage Taken"));
+	GameplayTags.Attributes_Resistances_Radiation = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Radiation"), FString("Reduces Radiation Damage Taken"));
+	GameplayTags.Attributes_Resistances_Shock = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Shock"), FString("Reduces Shock Damage Taken"));
+	GameplayTags.Attributes_Resistances_Digital = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Digital"), FString("Reduces Digital Damage Taken"));
+	GameplayTags.Attributes_Resistances_Viral = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Viral"), FString("Reduces Viral Damage Taken"));
+	GameplayTags.Attributes_Resistances_Sonic = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Sonic"), FString("Reduces Sonic Damage Taken"));
+	GameplayTags.Attributes_Resistances_Psychological = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Psychological"), FString("Reduces Psychological Damage Taken"));
+	GameplayTags.Attributes_Resistances_Nanite = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Nanite"), FString("Reduces Nanite Damage Taken"));
+	GameplayTags.Attributes_Resistances_Acid = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Acid"), FString("Reduces Acid Damage Taken"));
+	GameplayTags.Attributes_Resistances_Biological = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Biological"), FString("Reduces Biological Damage Taken"));
+	GameplayTags.Attributes_CriticalHitResistance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.CriticalHitResistance"), FString("The ability to resist critical hits. Reduces extra damage taken from critical hits."));
 
 	// Input tags
 
