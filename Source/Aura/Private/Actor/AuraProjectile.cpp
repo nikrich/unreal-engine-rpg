@@ -75,11 +75,6 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		if (UAbilitySystemComponent* TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor)) {
 			auto MyAttributeSet = TargetAbilitySystemComponent->GetSet<UAuraAttributeSet>();
-			if (MyAttributeSet)
-			{
-				float Health = MyAttributeSet->GetHealth();
-			}
-
 			TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 		}
 

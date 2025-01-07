@@ -74,7 +74,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Fire, GetResistance_FireAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Ballistic, GetResistance_BallisticAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Energy, GetResistance_BallisticAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Energy, GetResistance_EnergyAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Kinetic, GetResistance_KineticAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Piercing, GetResistance_PiercingAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistances_Toxic, GetResistance_ToxicAttribute);
