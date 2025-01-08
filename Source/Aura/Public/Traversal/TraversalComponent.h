@@ -57,13 +57,13 @@ struct FTraversableBlockResult
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
-	ATraversableBlock* TraversableBlock;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
-	UPrimitiveComponent* HitComponent;
+	UStaticMeshComponent* TraversableBlock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
 	FVector ImpactPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	FVector BoxTopImpactPoint;
 
 };
 
@@ -79,10 +79,13 @@ struct FTraversalCheckResult
 	bool bHasFrontLedge;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
-	FVector FrontLedgeLocation;
+	FVector FrontLedgeGrabLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
 	FVector FrontLedgeNormal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	float FrontLedgeHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
 	bool bHasBackLedge;
@@ -109,7 +112,13 @@ struct FTraversalCheckResult
 	float BackLedgeHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
-	UPrimitiveComponent* HitComponent;
+	FHitResult HitResult;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	UStaticMeshComponent* HitComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
+	FBox HitCollisionBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traversal Info")
 	UAnimMontage* ChosenMontage;
@@ -232,7 +241,7 @@ private:
 	bool DrawDebug;
 
 	FTraversalInputType GetTraversalInput() const;
-	FTraversableBlockResult CheckIfObjectIsTraversable() const;
+	bool SetTraceMesh(FTraversalCheckResult& CheckResult);
 	void SetFrontLedgeInfo(FTraversalCheckResult& CheckResult);
 	void SetBackLedgeInfo(FTraversalCheckResult& CheckResult);
 	void SetBackFloorInfo(FTraversalCheckResult& CheckResult);

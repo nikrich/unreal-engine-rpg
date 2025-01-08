@@ -88,7 +88,7 @@ void ATraversableBlock::SetLedgeTransforms(FVector HitLocation, FVector ActorLoc
 
 	// Add Data to Check Result
 	CheckResult.bHasFrontLedge = true;
-	CheckResult.FrontLedgeLocation = GrabLocation;
+	CheckResult.FrontLedgeGrabLocation = GrabLocation;
 	CheckResult.FrontLedgeNormal = GrabUpVector;
 
 	// Find the Opposite Ledge
@@ -100,7 +100,7 @@ void ATraversableBlock::SetLedgeTransforms(FVector HitLocation, FVector ActorLoc
 		return;
 	}
 
-	const FTransform OppositeLedgeTransform = OppositeLedge->FindTransformClosestToWorldLocation(CheckResult.FrontLedgeLocation, ESplineCoordinateSpace::World);
+	const FTransform OppositeLedgeTransform = OppositeLedge->FindTransformClosestToWorldLocation(CheckResult.FrontLedgeGrabLocation, ESplineCoordinateSpace::World);
 	const FVector OppositeLedgeLocation = OppositeLedgeTransform.GetLocation();
 	const FVector OppositeLedgeUpVector = OppositeLedgeTransform.GetRotation().GetUpVector();
 

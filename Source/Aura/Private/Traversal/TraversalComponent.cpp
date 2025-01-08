@@ -45,21 +45,12 @@ FTraversalInputType UTraversalComponent::GetTraversalInput() const
 void UTraversalComponent::PerformTraversalTrace()
 {
 	TraversalCheckResult = FTraversalCheckResult();
-	
-	FTraversableBlockResult TraversableBlock = CheckIfObjectIsTraversable();
 
-	if (!TraversableBlock.TraversableBlock)
-	{
-		return;
-	}
+	// See if the actor can traverse the object by performing a trace from the actors location to the front ledge location.
 
-	TraversalCheckResult.HitComponent = TraversableBlock.HitComponent;
+	bool bTraceSuccess = SetTraceMesh(TraversalCheckResult);
 
-	TraversableBlock.TraversableBlock->SetLedgeTransforms(TraversableBlock.ImpactPoint, Character->GetActorLocation(), TraversalCheckResult);
-
-	if (!TraversalCheckResult.bHasFrontLedge) {
-		return;
-	}
+	if (!bTraceSuccess) return;
 
 	// Perform a trace from the actors location up to the front ledge location to determine
 	// if there is room for the actor to move up to it. If so, continue the function. If not, exit early.
@@ -83,7 +74,7 @@ void UTraversalComponent::PerformTraversalTrace()
 	OnTraversalCheckComplete.Broadcast(MontageChooserInputs);
 }
 
-FTraversableBlockResult UTraversalComponent::CheckIfObjectIsTraversable() const
+bool UTraversalComponent::SetTraceMesh(FTraversalCheckResult& CheckResult)
 {
 	const FTraversalInputType TraversalInput = GetTraversalInput();
 	const FVector CharacterLocation = Character->GetActorLocation();
@@ -103,26 +94,39 @@ FTraversableBlockResult UTraversalComponent::CheckIfObjectIsTraversable() const
 	// Traversal Check Failed - Return Check Failed with FTraceResult Struct
 	if (!bTraceSuccess)
 	{
-		return FTraversableBlockResult();
+		return false;
 	}
 
 	// Hit Has Occurred
 
-	AActor* HitActor = HitResult.GetActor();
-	ATraversableBlock* TraversableBlock = Cast<ATraversableBlock>(HitActor);
-
-	if (!TraversableBlock)
+	UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(HitResult.Component);
+	
+	if (!StaticMeshComp)
 	{
-		return FTraversableBlockResult();
+		return false;
 	}
 
-	return FTraversableBlockResult(TraversableBlock, HitResult.Component.Get(), HitResult.ImpactPoint);
+	CheckResult.HitResult = HitResult;
+	CheckResult.HitComponent = StaticMeshComp;
+	CheckResult.HitCollisionBox = StaticMeshComp->Bounds.GetBox();
+
+	return true;
 }
 
 
 void UTraversalComponent::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult)
 {
-	FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
+	// Add Traversal Data to Check Result for Front Ledge
+	// TODO - make sure it's not too close to the edge, if it is, move the location a bit closer to the center
+
+	TraversalCheckResult.bHasFrontLedge = true;
+	TraversalCheckResult.FrontLedgeGrabLocation = FVector(CheckResult.HitResult.ImpactPoint.X, CheckResult.HitResult.ImpactPoint.Y, CheckResult.HitCollisionBox.Max.Z);
+	TraversalCheckResult.FrontLedgeNormal = CheckResult.HitResult.ImpactNormal;
+	TraversalCheckResult.FrontLedgeHeight = CheckResult.HitCollisionBox.Max.Z - CheckResult.HitCollisionBox.Min.Z;
+
+	DrawDebugSphere(GetWorld(), TraversalCheckResult.FrontLedgeGrabLocation, 10.f, 12, FColor::Red, false, 2.f);
+
+	FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeGrabLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
 
 	if (DrawDebug)
 	{
@@ -141,7 +145,6 @@ void UTraversalComponent::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult)
 	if (DrawDebug && GEngine && bTraceSuccess)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Front Edge Traversal Check: %s"), *HitResult.GetActor()->GetName()));
-	
 	}
 
 	const bool bCannotTraverseLedge = HitResult.bBlockingHit;
@@ -153,16 +156,42 @@ void UTraversalComponent::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult)
 	}
 
 	// Save the height of the obstacle using the delta between the actor and front ledge transform.
-	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeLocation.Z - (Character->GetActorLocation().Z - CapsuleHalfHeight));
+	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeGrabLocation.Z - (Character->GetActorLocation().Z - CapsuleHalfHeight));
 }
 
 void UTraversalComponent::SetBackLedgeInfo(FTraversalCheckResult& CheckResult)
 {
+	FVector HitNormal = CheckResult.FrontLedgeNormal;
+
+	// Step 1: Check which axis was hit
+	bool bHitXFace = FMath::Abs(HitNormal.X) > FMath::Abs(HitNormal.Y) && FMath::Abs(HitNormal.X) > FMath::Abs(HitNormal.Z);
+	bool bHitYFace = FMath::Abs(HitNormal.Y) > FMath::Abs(HitNormal.X) && FMath::Abs(HitNormal.Y) > FMath::Abs(HitNormal.Z);
+
+	// Step 2: Get the box extent and scale it by the hit component's scale
+	FVector BoxExtent = CheckResult.HitComponent->GetStaticMesh()->GetBoundingBox().GetExtent() * CheckResult.HitComponent->GetComponentScale();
+
+	// Step 3: Calculate the back ledge location
+	FVector BackLedgeLocation;
+
+	if (bHitXFace)
+	{
+		BackLedgeLocation = CheckResult.FrontLedgeGrabLocation - (HitNormal * BoxExtent.X * 2.0f);
+	}
+	else if (bHitYFace)
+	{
+		BackLedgeLocation = CheckResult.FrontLedgeGrabLocation - (HitNormal * BoxExtent.Y * 2.0f);
+	}
+
+	// Step 4: Set the back ledge location and normal
+	TraversalCheckResult.BackLedgeLocation = BackLedgeLocation;
+	TraversalCheckResult.BackLedgeNormal = -HitNormal;
+
 	BackLedgeLocationCollisionCheck = TraversalCheckResult.BackLedgeLocation + (TraversalCheckResult.BackLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
 
 	if (DrawDebug)
 	{
 		DrawDebugLine(GetWorld(), FrontLedgeLocationCollisionCheck, BackLedgeLocationCollisionCheck, FColor::Blue, false, 2.f);
+		DrawDebugSphere(GetWorld(), BackLedgeLocation, 10.f, 12, FColor::Blue, false, 2.f);
 	}
 
 	FHitResult HitResult;
@@ -178,11 +207,12 @@ void UTraversalComponent::SetBackLedgeInfo(FTraversalCheckResult& CheckResult)
 	if (bIsBlockedFromRunningToBackLedge)
 	{
 		TraversalCheckResult.bHasBackLedge = false;
-		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, HitResult.ImpactPoint));
+		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeGrabLocation, HitResult.ImpactPoint));
 	}
 	else
 	{
-		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, TraversalCheckResult.BackLedgeLocation));
+		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeGrabLocation, TraversalCheckResult.BackLedgeLocation));
+		TraversalCheckResult.bHasBackLedge = true;
 	}
 }
 

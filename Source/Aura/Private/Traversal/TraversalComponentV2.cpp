@@ -111,7 +111,7 @@ FTraversableBlockResult UTraversalComponentV2::CheckIfObjectIsTraversable() cons
 
 void UTraversalComponentV2::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult)
 {
-	FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
+	FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeGrabLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
 
 	if (DrawDebug)
 	{
@@ -142,7 +142,7 @@ void UTraversalComponentV2::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult
 	}
 
 	// Save the height of the obstacle using the delta between the actor and front ledge transform.
-	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeLocation.Z - (Character->GetActorLocation().Z - CapsuleHalfHeight));
+	TraversalCheckResult.ObstacleHeight = FMath::Abs(TraversalCheckResult.FrontLedgeGrabLocation.Z - (Character->GetActorLocation().Z - CapsuleHalfHeight));
 }
 
 void UTraversalComponentV2::SetBackLedgeInfo(FTraversalCheckResult& CheckResult)
@@ -167,11 +167,11 @@ void UTraversalComponentV2::SetBackLedgeInfo(FTraversalCheckResult& CheckResult)
 	if (bIsBlockedFromRunningToBackLedge)
 	{
 		TraversalCheckResult.bHasBackLedge = false;
-		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, HitResult.ImpactPoint));
+		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeGrabLocation, HitResult.ImpactPoint));
 	}
 	else
 	{
-		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeLocation, TraversalCheckResult.BackLedgeLocation));
+		TraversalCheckResult.ObstacleDepth = FMath::Abs(FVector::Dist(TraversalCheckResult.FrontLedgeGrabLocation, TraversalCheckResult.BackLedgeLocation));
 	}
 }
 
