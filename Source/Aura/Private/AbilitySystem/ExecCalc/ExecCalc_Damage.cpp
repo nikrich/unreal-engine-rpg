@@ -5,9 +5,117 @@
 #include "AbilitySystemComponent.h"
 #include <AuraGameplayTags.h>
 #include <AbilitySystem/AuraAbilitySystemLibrary.h>
+#include "AbilitySystem/AuraAttributeSet.h"
 #include <Character/AuraCharacterBase.h>
 #include <AuraAbilityTypes.h>
 
+struct AuraDamageStatics
+{
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Stamina);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_ArmorRating);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_ArmorPenetration);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Evasion);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Accuracy);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_CriticalChance);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_CriticalDamage);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_HackingPower);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Persuasion);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_Stealth);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_MaxHealth);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Secondary_MaxEnergy);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Fire);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Ballistic);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Energy);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Kinetic);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Piercing);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Toxic);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Radiation);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Shock);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Digital);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Viral);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Sonic);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Psychological);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Nanite);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Acid);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_Biological);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Resistance_CriticalHit);
+
+	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefinitions;
+
+	AuraDamageStatics()
+	{
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Stamina, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_ArmorRating, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_ArmorPenetration, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Evasion, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Accuracy, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_CriticalChance, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_CriticalDamage, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_HackingPower, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Persuasion, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_Stealth, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_MaxHealth, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Secondary_MaxEnergy, Source, false);
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Fire, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Ballistic, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Energy, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Kinetic, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Piercing, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Toxic, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Radiation, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Shock, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Digital, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Viral, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Sonic, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Psychological, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Nanite, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Acid, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_Biological, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Resistance_CriticalHit, Target, false);
+
+		const FAuraGameplayTags& Tags = FAuraGameplayTags::Get();
+
+		UE_LOG(LogTemp, Warning, TEXT("Tags: %s"), *Tags.Attributes_Primary_Body.ToString());
+
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Stamina, Secondary_StaminaDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_ArmorRating, Secondary_ArmorRatingDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_ArmorPenetration, Secondary_ArmorPenetrationDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Evasion, Secondary_EvasionDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Accuracy, Secondary_AccuracyDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_CriticalChance, Secondary_CriticalChanceDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_CriticalDamage, Secondary_CriticalDamageDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_HackingPower, Secondary_HackingPowerDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Persuasion, Secondary_PersuasionDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Stealth, Secondary_StealthDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_MaxHealth, Secondary_MaxHealthDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_MaxEnergy, Secondary_MaxEnergyDef);
+
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Fire, Resistance_FireDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Ballistic, Resistance_BallisticDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Energy, Resistance_EnergyDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Kinetic, Resistance_KineticDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Piercing, Resistance_PiercingDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Toxic, Resistance_ToxicDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Radiation, Resistance_RadiationDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Shock, Resistance_ShockDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Digital, Resistance_DigitalDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Viral, Resistance_ViralDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Sonic, Resistance_SonicDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Psychological, Resistance_PsychologicalDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Nanite, Resistance_NaniteDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Acid, Resistance_AcidDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistances_Biological, Resistance_BiologicalDef);
+		TagsToCaptureDefinitions.Add(Tags.Attributes_CriticalHitResistance, Resistance_CriticalHitDef);
+	}
+};
+
+static const AuraDamageStatics& DamageStatics()
+{
+	static AuraDamageStatics DStatics;
+	return DStatics;
+}
 
 UExecCalc_Damage::UExecCalc_Damage()
 {
@@ -23,6 +131,23 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_StealthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_MaxHealthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Secondary_MaxEnergyDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_CriticalHitDef);
+
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_FireDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_BallisticDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_EnergyDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_KineticDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_PiercingDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_ToxicDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_RadiationDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_ShockDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_DigitalDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_ViralDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_SonicDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_PsychologicalDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_NaniteDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_AcidDef);
+	RelevantAttributesToCapture.Add(DamageStatics().Resistance_BiologicalDef);
 	RelevantAttributesToCapture.Add(DamageStatics().Resistance_CriticalHitDef);
 }
 
@@ -58,13 +183,38 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	UCharacterClassInfo* CharacterClassInfo = UAuraAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
 
-	// Get Damage by Caller Magnitude
+	/*
+	 * Look up Resistance Tags and calculate the damage reduction based on the resistance value.
+	 */
+	
 	float Damage = 0.f;
 
 	for (const auto& DamageTypePair : FAuraGameplayTags::Get().DamageTypesToResistances)
 	{
-		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypePair.Key);
-		Damage += DamageTypeValue;
+		const FGameplayTag DamageTypeTag = DamageTypePair.Key;
+		const FGameplayTag ResistanceTag = DamageTypePair.Value;
+
+		const TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition>& TagsToCaptureDefinitions = DamageStatics().TagsToCaptureDefinitions;
+
+		// Debug
+		
+		for (const auto& Tag : TagsToCaptureDefinitions)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Tag: %s"), *Tag.Key.ToString());
+		}
+
+		/*checkf(TagsToCaptureDefinitions.Contains(ResistanceTag), TEXT("Invalid Resistance Tag in DamageTypesToResistances"));
+		const FGameplayEffectAttributeCaptureDefinition ResistanceCaptureDef = TagsToCaptureDefinitions[ResistanceTag];
+
+		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypePair.Key);
+
+		float ResistanceValue = 0.f;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ResistanceCaptureDef, EvaluationParameters, ResistanceValue);
+		ResistanceValue = FMath::Clamp(ResistanceValue, 0.f, 100.f);
+
+		DamageTypeValue *= (100.f - ResistanceValue) / 100.f;
+		
+		Damage += DamageTypeValue;*/
 	}
 	
 	// Capture Blackchance on Target and Determine if there was a succesful block
