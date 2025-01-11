@@ -80,6 +80,11 @@ struct AuraDamageStatics
 	{
 		const FAuraGameplayTags& Tags = FAuraGameplayTags::Get();
 
+		UE_LOG(LogTemp, Warning, TEXT("Debug Attribute Init: %s"), *Tags.Attributes_Primary_Body.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Debug Attribute Init: %s"), *Tags.Attributes_Primary_Agility.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Debug Attribute Init: %s"), *Tags.Attributes_Primary_Intellect.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Debug Attribute Init: %s"), *Tags.Attributes_Primary_Charisma.ToString());
+
 		TagsToCaptureDefinitions.Add(Tags.Attributes_Stamina, Secondary_StaminaDef);
 		TagsToCaptureDefinitions.Add(Tags.Attributes_ArmorRating, Secondary_ArmorRatingDef);
 		TagsToCaptureDefinitions.Add(Tags.Attributes_ArmorPenetration, Secondary_ArmorPenetrationDef);
