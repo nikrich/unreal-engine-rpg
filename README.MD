@@ -62,4 +62,5 @@ This section explains how to add **custom clothing to MetaHumans** using **MetaT
 
 ---
 
-## 📂 Project Structure  
+## 📦 Incredicle Resources
+- https://www.youtube.com/watch?v=b_ZjsUg2XCc - Metahuman customisation - Everything you need to know about Unreal to Blender and vice versa
