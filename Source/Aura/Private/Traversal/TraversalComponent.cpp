@@ -4,7 +4,6 @@
 #include "Traversal/TraversalComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
-#include <Traversal/TraversableBlock.h>
 
 UTraversalComponent::UTraversalComponent()
 {
