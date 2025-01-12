@@ -7,7 +7,7 @@
 #include "AuraWidgetController.generated.h"
 
 class UAbilitySystemComponent;
-class UAttributeSet;
+class UAuraAttributeSet;
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
@@ -16,7 +16,7 @@ struct FWidgetControllerParams
 
 	FWidgetControllerParams() {}
 	FWidgetControllerParams(APlayerController* InPlayerController, APlayerState* InPlayerState,
-		UAbilitySystemComponent* InAbilitySystemComponent, UAttributeSet* InAttributeSet)
+		UAbilitySystemComponent* InAbilitySystemComponent, UAuraAttributeSet* InAttributeSet)
 		: PlayerController(InPlayerController), PlayerState(InPlayerState), AbilitySystemComponent(InAbilitySystemComponent), AttributeSet(InAttributeSet) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WidgetController")
@@ -29,7 +29,7 @@ struct FWidgetControllerParams
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WidgetController")
-	TObjectPtr<UAttributeSet> AttributeSet = nullptr;
+	TObjectPtr<UAuraAttributeSet> AttributeSet = nullptr;
 };
 
 UCLASS()
@@ -59,6 +59,6 @@ protected:
 
 	// UAttributeSet
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
-	TObjectPtr<UAttributeSet> AttributeSet;
+	TObjectPtr<UAuraAttributeSet> AttributeSet;
 	
 };

@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include <Aura/Aura.h>
 #include <Kismet/GameplayStatics.h>
+#include <Traversal/TraversalComponent.h>
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -18,6 +19,11 @@ AAuraCharacterBase::AAuraCharacterBase()
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("Muzzle_01"));
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Add Traversal Component
+	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal");
+	TraversalComponent->SetupAttachment(GetMesh(), FName("Traversal Component"));
+
 }
 
 UAbilitySystemComponent* AAuraCharacterBase::GetAbilitySystemComponent() const
@@ -32,6 +38,11 @@ void AAuraCharacterBase::Die(FVector ImpactVector, bool bBlocked, bool bCritical
 	}
 
 	MulticastHandleDeath(ImpactVector, bBlocked, bCriticalHit);
+}
+
+FVector AAuraCharacterBase::GetForwardVector() const
+{
+	return FVector();
 }
 
 void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVector, bool bBlocked, bool bCriticalHit)
@@ -54,7 +65,7 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVecto
 
 	float ForceMagnitude = 200000;
 	ForceMagnitude *= bBlocked ? 0.5f : 1.f;
-	ForceMagnitude *= bCriticalHit ? 5.f : 1.f;
+	ForceMagnitude *= bCriticalHit ? 2.f : 1.f;
 
 	FVector VectorForce = ImpactVector * ForceMagnitude;
 	GetMesh()->AddImpulse(VectorForce);
@@ -75,10 +86,9 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVecto
 	Dissolve();
 }
 
-void AAuraCharacterBase::BeginPlay()
-{
-	Super::BeginPlay();
-}
+/*
+ * Movement End
+ */
 
 FVector AAuraCharacterBase::GetCombatSocketLocation() const
 {
@@ -87,6 +97,12 @@ FVector AAuraCharacterBase::GetCombatSocketLocation() const
 
 void AAuraCharacterBase::InitAbilityActorInfo()
 {
+}
+
+void AAuraCharacterBase::Jump()
+{
+	Super::Jump();
+	TraversalComponent->PerformTraversalTrace();
 }
 
 void AAuraCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
@@ -105,7 +121,8 @@ void AAuraCharacterBase::InitializeDefaultAttributes() const
 {
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
-	ApplyEffectToSelf(DefaultVitalyAttributes, 1.f);
+	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
+	ApplyEffectToSelf(DefaultResistanceAttributes, 1.f);
 }
 
 void AAuraCharacterBase::AddCharacterAbilities()

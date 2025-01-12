@@ -35,6 +35,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharcter, bool isBlockingHit, bool bIsCriticalHit);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	FVector GetForwardVector() const { return ForwardVector; }
+
 protected:
 	/**
 	  * @brief Called when the game starts or when spawned.
@@ -47,50 +50,67 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
+	class AAuraCharacterBase* AuraCharacter;
+
+	/*
+	 * Inputs 
+	 */
+
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputMappingContext> AuraContext;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputAction> MoveAction;
 
-	/**
-	  * @brief Handles the movement action.
-	  * @param InputActionValue The input action value.
-	  */
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> JumpAction;
+
+	UPROPERTY(EditAnyWhere, Category = "Combat")
+	FVector ForwardVector;
+
+	UPROPERTY(EditAnyWhere, Category = "Combat")
+	float LineTraceDistance = 2000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	float Sensitivity = 5.f;
+
+	/*
+	 * Input Functions
+	 */
+
 	void Move(const struct FInputActionValue& InputActionValue);
+	void Look(const FInputActionValue& Value);
+	void Jump(const struct FInputActionValue& InputActionValue);
 
-	void CursorTrace();
-	FHitResult CursorHit;
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
 
-	 TScriptInterface<IEnemyInterface> LastActor;
-	 TScriptInterface<IEnemyInterface> ThisActor;
+	void HasStartedToRun();
 
-	 void AbilityInputTagPressed(FGameplayTag InputTag);
-	 void AbilityInputTagReleased(FGameplayTag InputTag);
-	 void AbilityInputTagHeld(FGameplayTag InputTag);
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UAuraInputConfig> InputConfig;
 
-	 UPROPERTY(EditDefaultsOnly, Category = "Input")
-	 TObjectPtr<UAuraInputConfig> InputConfig;
+	/*
+	 * Cursor Hits
+	 */
 
-	 UPROPERTY()
-	 TObjectPtr<UAuraAbilitySystemComponent> AbilitySystemComponent;
+	void LineTrace();
+	FHitResult LineTraceHit;
 
-	 UAuraAbilitySystemComponent* GetAuraAbilitySystemComponent();
+	TScriptInterface<IEnemyInterface> LastActor;
+	TScriptInterface<IEnemyInterface> ThisActor;
 
-	 FVector CachedDestination = FVector::ZeroVector;
-	 float FollowTime = 0.f;
-	 float ShortPressThreshold = 0.5f;
-	 bool bAutoRunning = false;
-	 bool bTargeting = false;
+	bool bTargeting = false;
 
-	 UPROPERTY(EditDefaultsOnly, Category = "Input")
-	 float AutoRunAcceptanceRadius = 50.f;
+	UPROPERTY()
+	TObjectPtr<UAuraAbilitySystemComponent> AbilitySystemComponent;
 
-	 UPROPERTY(VisibleAnywhere, Category = "Input")
-	 TObjectPtr<USplineComponent> Spline;
+	UAuraAbilitySystemComponent* GetAuraAbilitySystemComponent();
 
-	 void AutoRun();
-
-	 UPROPERTY(EditDefaultsOnly, Category = "Damage Text")
-	 TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Damage Text")
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };

@@ -13,18 +13,18 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+AAuraProjectile* UAuraProjectileSpell::SpawnProjectile()
 {
 	// Check if we are the server
 	bool bIsServver = GetAvatarActorFromActorInfo()->HasAuthority();
-	if (!bIsServver) return;
+	if (!bIsServver) return nullptr;
 
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FVector Direction = (ProjectileTargetLocation - SocketLocation).GetSafeNormal();
-		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
-		Rotation.Pitch = 0.0f;
+		FVector Direction = CombatInterface->GetForwardVector();
+		FRotator Rotation = CombatInterface->GetForwardVector().Rotation();
+		//Rotation.Pitch = 0.0f;
 
 		UE_LOG(LogTemp, Warning, TEXT("SpawnProjectile: %s"), *Direction.ToString());
 		
@@ -53,11 +53,6 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		Actors.Add(Projectile);
 		EffectContextHandle.AddActors(Actors);
 
-		FHitResult HitResult;
-		HitResult.ImpactPoint = ProjectileTargetLocation;
-		HitResult.Location = ProjectileTargetLocation;
-		EffectContextHandle.AddHitResult(HitResult);
-
 		// End Create Effect Context
 
 		const FGameplayEffectSpecHandle SpecHandle = SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
@@ -73,8 +68,15 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 
 		// Add Damage to SpecHandle
 		FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, Damage.GetValueAtLevel(10));
+
+		for (const auto& DamageType : DamageTypes)
+		{
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType.Key, DamageType.Value.GetValueAtLevel(GetAbilityLevel()));
+		}
 
 		Projectile->FinishSpawning(SpawnTransform);
+		return Projectile;
 	}
+
+	return nullptr;
 }

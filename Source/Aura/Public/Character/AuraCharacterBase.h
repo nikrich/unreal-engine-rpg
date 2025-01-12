@@ -13,6 +13,7 @@ class UAttributeSet;
 class UGameplayEffect;
 class UGameplayAbility;
 class UAnimMontage;
+class UTraversalComponent;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -21,6 +22,7 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 
 public:
 	AAuraCharacterBase();
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
@@ -28,17 +30,22 @@ public:
 
 	virtual void Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit) override;
 
+	virtual FVector GetForwardVector() const override;
+
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(FVector ImpactVector, bool bBlocked, bool bCriticalHit);
 
-protected:
-	virtual void BeginPlay() override;
+	virtual void Jump() override;
 
-	UPROPERTY(EditAnyWhere, Category="Combat")
+protected:
+	UPROPERTY(EditAnyWhere, BlueprintReadonly, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	FName WeaponSocketName;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadonly, Category = "Traversal")
+	TObjectPtr<UTraversalComponent> TraversalComponent;
 
 	virtual FVector GetCombatSocketLocation() const;
 
@@ -57,8 +64,10 @@ protected:
 	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
 
 	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Attributes")
-	TSubclassOf<UGameplayEffect> DefaultVitalyAttributes;
+	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
 
+	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultResistanceAttributes;
 	
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
 
@@ -66,7 +75,10 @@ protected:
 
 	void AddCharacterAbilities();
 
-	// Dissolve Effects
+	/*
+	 * Dissolve Effects
+	 */ 
+
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = "Dissolve")
 	TObjectPtr<UMaterialInstance> DissolveMaterialInstance;
 
@@ -80,6 +92,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
+
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities")

@@ -5,18 +5,12 @@
 #include <Player/AuraPlayerController.h>
 #include <UI/HUD/AuraHUD.h>
 #include "AbilitySystem//AuraAttributeSet.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include <AbilitySystem/AuraAbilitySystemComponent.h>
 
 AAuraCharacter::AAuraCharacter()
 {
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 400, 0.0f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
 
 }
 
@@ -41,6 +35,16 @@ int32 AAuraCharacter::GetPlayerLevel()
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
 	check(AuraPlayerState);
 	return AuraPlayerState->GetPlayerLevel();
+}
+
+FVector AAuraCharacter::GetForwardVector() const
+{
+	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
+	{
+		return AuraPlayerController->GetForwardVector();
+	}
+
+	return Super::GetForwardVector();
 }
 
 void AAuraCharacter::InitAbilityActorInfo()

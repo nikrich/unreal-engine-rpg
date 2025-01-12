@@ -2,6 +2,7 @@
 
 
 #include "UI/HUD/AuraHUD.h"
+#include <AbilitySystem/AuraAttributeSet.h>
 
 UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetControllerParams& Params)
 {
@@ -39,7 +40,9 @@ void AAuraHUD::InitOverlay(APlayerController* InPlayerController, APlayerState* 
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), OverlayWidgetClass);
 	OverlayWidget = Cast<UAuraUserWidget>(Widget);
 
-	const FWidgetControllerParams WidgetControllerParams(InPlayerController, InPlayerState, InAbilitySystemComponent, InAttributeSet);
+	UAuraAttributeSet* AttributeSet = Cast<UAuraAttributeSet>(InAttributeSet);
+
+	const FWidgetControllerParams WidgetControllerParams(InPlayerController, InPlayerState, InAbilitySystemComponent, AttributeSet);
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
 	OverlayWidget->SetWidgetController(WidgetController);
