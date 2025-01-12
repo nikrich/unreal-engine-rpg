@@ -124,7 +124,10 @@ void UTraversalComponent::SetFrontLedgeInfo(FTraversalCheckResult& CheckResult)
 	TraversalCheckResult.FrontLedgeNormal = CheckResult.HitResult.ImpactNormal;
 	TraversalCheckResult.FrontLedgeHeight = CheckResult.HitCollisionBox.Max.Z - CheckResult.HitCollisionBox.Min.Z;
 
-	DrawDebugSphere(GetWorld(), TraversalCheckResult.FrontLedgeGrabLocation, 10.f, 12, FColor::Red, false, 2.f);
+	if (DrawDebug)
+	{
+		DrawDebugSphere(GetWorld(), TraversalCheckResult.FrontLedgeGrabLocation, 10.f, 12, FColor::Red, false, 2.f);
+	}
 
 	FrontLedgeLocationCollisionCheck = TraversalCheckResult.FrontLedgeGrabLocation + (TraversalCheckResult.FrontLedgeNormal * CapsuleRadius + 2) + FVector(0.f, 0.f, CapsuleHalfHeight + 2.f);
 
