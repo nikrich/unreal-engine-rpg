@@ -21,6 +21,7 @@ public:
 
 	/** Combat Interfact **/
 	virtual int32 GetPlayerLevel() override;
+
 	virtual FVector GetForwardVector() const override;
 	/** End Combat Interfact **/
 
