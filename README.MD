@@ -144,5 +144,8 @@ Video Guide: https://www.youtube.com/watch?v=l0PiYCDmjBk
 ---
 
 ## 📦 Resources
-### Metahuman Customisation
+### Metahuman
 - https://www.youtube.com/watch?v=b_ZjsUg2XCc - Metahuman customisation - Everything you need to know about Unreal to Blender and vice versa
+
+### IK
+- https://www.youtube.com/watch?v=SM_AR-oZ-1k - Full body IK solver
