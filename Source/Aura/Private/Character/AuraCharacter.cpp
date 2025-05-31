@@ -11,7 +11,10 @@
 
 AAuraCharacter::AAuraCharacter()
 {
-
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bUseControllerRotationYaw = false;
+	GetMesh()->bEnableUpdateRateOptimizations = false;
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)

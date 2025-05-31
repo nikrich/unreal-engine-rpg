@@ -53,18 +53,26 @@ void AAuraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AuraCharacter = Cast<AAuraCharacterBase>(GetPawn<APawn>());
-
 	if (IsLocalController() && GEngine)
 	{
 		// ConsoleCommand(TEXT("showdebug abilitysystem"), true);
 	}
-	
+
 	check(AuraContext);
 
-	if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
+	AuraCharacter = Cast<AAuraCharacterBase>(GetPawn<APawn>());
+
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
 		Subsystem->AddMappingContext(AuraContext, 0);
 	}
+
+	bShowMouseCursor = true;
+	DefaultMouseCursor = EMouseCursor::Default;
+
+	FInputModeGameAndUI InputModeData;
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputModeData.SetHideCursorDuringCapture(false);
+	SetInputMode(InputModeData);
 }
 
 /**
@@ -80,26 +88,31 @@ void AAuraPlayerController::SetupInputComponent()
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
 	AuraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Look);
 	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AAuraPlayerController::Jump);
+	AuraInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AAuraPlayerController::Sprint);
 
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 
-/*
- * Input Functions and State Machine
+/**
+ * Called when the Move action is triggered.
+ * Moves the controlled pawn based on the input values.
+ * @param InputActionValue The input action value containing the move values.
  */
-
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 {
-	FVector2D MoveValue = InputActionValue.Get<FVector2D>();
+	const FVector2D MoveValue = InputActionValue.Get<FVector2D>();
 	const FRotator Rotation = GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AuraCharacter->AddMovementInput(ForwardDirection, MoveValue.Y);
-	AuraCharacter->AddMovementInput(RightDirection, MoveValue.X);
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
+		ControlledPawn->AddMovementInput(ForwardDirection, MoveValue.Y);
+		ControlledPawn->AddMovementInput(RightDirection, MoveValue.X);
+	}
 }
 
 void AAuraPlayerController::Jump(const FInputActionValue& InputActionValue)
@@ -107,34 +120,39 @@ void AAuraPlayerController::Jump(const FInputActionValue& InputActionValue)
 	AuraCharacter->Jump();
 }
 
+void AAuraPlayerController::Sprint(const FInputActionValue& InputActionValue)
+{
+	
+}
+
 void AAuraPlayerController::Look(const FInputActionValue& InputActionValue)
 {
-	if (APawn* ControlledPawn = GetPawn<APawn>())
-	{
-		// Camera
+	//if (APawn* ControlledPawn = GetPawn<APawn>())
+	//{
+	//	// Camera
 
-		FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
+	//	FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 
-		FRotator CameraTargetRotation = GetControlRotation();
-		CameraTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
-		CameraTargetRotation.Pitch = FMath::Clamp(CameraTargetRotation.Pitch - LookAxisVector.Y * Sensitivity, -80.0f, 80.0f);
+	//	FRotator CameraTargetRotation = GetControlRotation();
+	//	CameraTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
+	//	CameraTargetRotation.Pitch = FMath::Clamp(CameraTargetRotation.Pitch - LookAxisVector.Y * Sensitivity, -80.0f, 80.0f);
 
-		ForwardVector = FRotationMatrix(CameraTargetRotation).GetUnitAxis(EAxis::X);
+	//	ForwardVector = FRotationMatrix(CameraTargetRotation).GetUnitAxis(EAxis::X);
 
-		FRotator SmoothedCameraRotation = FMath::RInterpTo(GetControlRotation(), CameraTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
-		SetControlRotation(SmoothedCameraRotation);
+	//	FRotator SmoothedCameraRotation = FMath::RInterpTo(GetControlRotation(), CameraTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+	//	SetControlRotation(SmoothedCameraRotation);
 
-		// Character
-		// Only rotate the character if they are not idle
-		if (!AuraCharacter->GetMovementComponent()->Velocity.IsNearlyZero()) {
-			FRotator CharacterTargetRotation = ControlledPawn->GetActorRotation();
-			CharacterTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
+	//	// Character
+	//	// Only rotate the character if they are not idle
+	//	if (!AuraCharacter->GetMovementComponent()->Velocity.IsNearlyZero()) {
+	//		FRotator CharacterTargetRotation = ControlledPawn->GetActorRotation();
+	//		CharacterTargetRotation.Yaw += LookAxisVector.X * Sensitivity;
 
-			FRotator SmoothedCharacterRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), CharacterTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+	//		FRotator SmoothedCharacterRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), CharacterTargetRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
 
-			ControlledPawn->SetActorRelativeRotation(SmoothedCharacterRotation);
-		}
-	}
+	//		ControlledPawn->SetActorRelativeRotation(SmoothedCharacterRotation);
+	//	}
+	//}
 }
 
 /*
@@ -175,56 +193,49 @@ UAuraAbilitySystemComponent* AAuraPlayerController::GetAuraAbilitySystemComponen
 
 void AAuraPlayerController::LineTrace()
 {
-	// Perform Line Trace for Forward Vector
-	FVector Start = PlayerCameraManager->GetCameraLocation();
-	FVector End = Start + (ForwardVector * LineTraceDistance);
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
 
-	// Draw Debug Line
-	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1.f);
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(GetPawn());
-	QueryParams.AddIgnoredActor(this);
-
-	// Perform Line Trace
-	GetWorld()->LineTraceSingleByChannel(LineTraceHit, Start, End, ECC_Visibility, QueryParams);
-
-	if (!LineTraceHit.bBlockingHit) {
-
-		if (LastActor != nullptr) {
-			LastActor->UnhighlightActor();
-			LastActor = nullptr;
-		}
-
-		if (ThisActor != nullptr) {
-			ThisActor->UnhighlightActor();
-			ThisActor = nullptr;
-		}
-
+	if (!HitResult.bBlockingHit) {
 		return;
 	}
 
 	LastActor = ThisActor;
-	ThisActor = LineTraceHit.GetActor();
+	ThisActor = HitResult.GetActor();
 
+	/**
+	* Line trace from custor to actor
+	* A. LastActor is null && ThisActor is null
+	*  - Do Nothing
+	* B. LastActor is null && ThisActor is not null
+	*  - Highlight ThisActor
+	* C. LastActor is not null && ThisActor is null
+	*  - Unhighlight LastActor
+	* D. LastActor is not null && ThisActor is not null
+	*  - Unhighlight LastActor
+	*  - Highlight ThisActor
+	*/
+
+	// Case A
 	if (LastActor == nullptr && ThisActor == nullptr) {
 		return;
 	}
 
+	// Case B
 	if (LastActor == nullptr && ThisActor != nullptr) {
 		ThisActor->HighlightActor();
 		return;
 	}
 
+	// Case C
 	if (LastActor != nullptr && ThisActor == nullptr) {
 		LastActor->UnhighlightActor();
 		return;
 	}
 
+	// Case D
 	if (LastActor != ThisActor) {
 		LastActor->UnhighlightActor();
 		ThisActor->HighlightActor();
 	}
-
-	bTargeting = ThisActor ? true : false;
 }
