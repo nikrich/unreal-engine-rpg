@@ -68,6 +68,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputAction> JumpAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> SprintAction;
+
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	FVector ForwardVector;
 
@@ -84,6 +87,7 @@ private:
 	void Move(const struct FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& Value);
 	void Jump(const struct FInputActionValue& InputActionValue);
+	void Sprint(const struct FInputActionValue& InputActionValue);
 
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);

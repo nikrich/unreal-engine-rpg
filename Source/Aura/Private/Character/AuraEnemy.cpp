@@ -8,6 +8,7 @@
 #include "UI/Widget/AuraUserWidget.h"
 #include "AuraGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AI/AuraAIController.h"
 #include <AbilitySystem/AuraAbilitySystemLibrary.h>
 
 AAuraEnemy::AAuraEnemy()
@@ -26,6 +27,13 @@ AAuraEnemy::AAuraEnemy()
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
 	HealthBar->SetupAttachment(RootComponent);
 }
+
+void AAuraEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	AAuraAIController* LocalAIController = Cast<AAuraAIController>(NewController);
+}
+
 
 void AAuraEnemy::BeginPlay()
 {
