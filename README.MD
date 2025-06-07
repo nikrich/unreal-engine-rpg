@@ -1,10 +1,10 @@
 # 🕹️ The Club at the Center of the World
-**A Futuristic Dystopian Game Set in Cape Town (Unreal Engine 5.5)**  
+**A Futuristic Dystopian Game Set in Cape Town (Unreal Engine 5.6)**  
 
 ## 📖 Overview 
 In **The Club at the Center of the World**, you play as a young man navigating a divided world where the ultra-rich control the city through an exclusive club called **The Agora**. Your mission is to infiltrate this hidden society and spark a revolution to take back control.  
 
-The game is built using **Unreal Engine 5.5**, featuring **MetaHuman characters**, a dynamic **Gameplay Ability System (GAS)**, and customizable outfits using **MetaTailor**.
+The game is built using **Unreal Engine 5.6**, featuring **MetaHuman characters**, a dynamic **Gameplay Ability System (GAS)**, and customizable outfits using **MetaTailor**.
 
 ---
 
@@ -18,9 +18,9 @@ The game is built using **Unreal Engine 5.5**, featuring **MetaHuman characters*
 
 ---
 
-## 📦 Setting up Visual Studio and Unreal Engine 5.5
+## 📦 Setting up Visual Studio and Unreal Engine 5.6
 
-- Download Unreal Engine 5.5.1 - It's important that you use this version
+- Download Unreal Engine 5.6 - It's important that you use this version
 - Download Visual Studio Community Edition 2022
 - Generate VS Project Files
 - In Unreal Engine, set IDE to Visual Studio 2022 and Refresh Solution from Tools -> Refresh Visual Studio Solution (This is important to get intellisense working)
@@ -29,11 +29,13 @@ The game is built using **Unreal Engine 5.5**, featuring **MetaHuman characters*
 ## Using Metahuman with retargeting ABP
 1. Create metuhuman with the 5.6 metahuman creator tool
 2. Update root class to be CBP_SandboxCharacter
-3. Ensure the Ability System has been configured inside the root of the Character
-4. Disable visibility of the source retargeter (the orange skeletal mesh)
-5. Ensure that you set Visibility Based Anim Tick Option to Always Tick Pose and Refresh Bones
-6. Update your game mode to use the new character
-7. Enjoy :)
+3. Move Metahuman skeletal mesh under the base mesh
+4. Ensure the Ability System has been configured inside the root of the Character
+5. Disable visibility of the source retargeter (the orange skeletal mesh)
+6. Ensure that you set Visibility Based Anim Tick Option to Always Tick Pose and Refresh Bones
+7. Update your game mode to use the new character
+8. Bonus, to use Live Link, make sure that SetUpdateAnimationInEditor use the correct root node, which should be the parent mesh of your meta human skeletal mesh
+9. Enjoy :)
 
 
 # Deprecated since the move to 5.6 - Will be removed in future commits
