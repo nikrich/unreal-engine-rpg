@@ -14,7 +14,9 @@
 #include "GameFramework/Character.h"
 #include "UI/Widget//DamageTextComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include <Character/AuraCharacterBase.h>
+#include <Character/AuraCharacter.h>
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 /**
  * Constructor for the AuraPlayerController class.
@@ -25,6 +27,7 @@ AAuraPlayerController::AAuraPlayerController()
 	bReplicates = true;
 
 	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
+	PreviouslyHiddenActors = TArray<AActor*>();
 }
 
 void AAuraPlayerController::PlayerTick(float DeltaTime)
@@ -32,6 +35,8 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	LineTrace();
+	RestoreVisibility();
+	CameraTrace();
 	AutoRun();
 }
 
@@ -63,7 +68,7 @@ void AAuraPlayerController::BeginPlay()
 
 	check(AuraContext);
 
-	AuraCharacter = Cast<AAuraCharacterBase>(GetPawn<APawn>());
+	AuraCharacter = Cast<AAuraCharacter>(GetPawn<APawn>());
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
 		Subsystem->AddMappingContext(AuraContext, 0);
@@ -284,4 +289,55 @@ void AAuraPlayerController::LineTrace()
 		LastActor->UnhighlightActor();
 		ThisActor->HighlightActor();
 	}
+}
+
+/**
+ * Performs a camera trace from the character's camera to the player's.
+ */
+void AAuraPlayerController::CameraTrace()
+{
+	if (AuraCharacter->GetFollowCamera()) 
+	{
+		FVector CameraLocation = AuraCharacter->GetFollowCamera()->GetComponentLocation();
+		FVector PlayerLocation = AuraCharacter->GetActorLocation(); 
+		
+		FHitResult HitResult;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this); // Ignore the player
+		Params.bReturnPhysicalMaterial = false;
+		float Radius = 15.0f;
+
+		bool bHit = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			CameraLocation,
+			PlayerLocation,
+			FQuat::Identity,
+			ECC_Visibility,
+			FCollisionShape::MakeSphere(Radius),
+			Params
+		);
+
+		if (bHit && HitResult.GetActor())
+		{
+			AActor* HitActor = HitResult.GetActor();
+			PreviouslyHiddenActors.AddUnique(HitActor);
+			HitActor->SetActorHiddenInGame(true); // Hard toggle
+			// Disable Collisions
+			HitActor->SetActorEnableCollision(false);
+		}
+	}
+}
+
+void AAuraPlayerController::RestoreVisibility()
+{
+	for (AActor* Actor : PreviouslyHiddenActors)
+	{
+		if (IsValid(Actor))
+		{
+			Actor->SetActorHiddenInGame(false);
+			// Re-enable Collisions
+			Actor->SetActorEnableCollision(true);
+		}
+	}
+	PreviouslyHiddenActors.Empty();
 }

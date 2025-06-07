@@ -50,7 +50,7 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
-	class AAuraCharacterBase* AuraCharacter;
+	class AAuraCharacter* AuraCharacter;
 
 	/*
 	 * Inputs 
@@ -133,4 +133,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage Text")
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+
+	/*
+	 * Camera Visibility Trace
+	 */
+
+	void CameraTrace();
+	TArray<AActor*> PreviouslyHiddenActors;
+	void RestoreVisibility();
 };

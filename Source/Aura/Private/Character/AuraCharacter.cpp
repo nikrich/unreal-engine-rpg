@@ -11,10 +11,20 @@
 
 AAuraCharacter::AAuraCharacter()
 {
+	// Movement Paramaters
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = false;
 	GetMesh()->bEnableUpdateRateOptimizations = false;
+
+	// Camera Setup
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false; // Don't rotate the camera with the controller
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)
