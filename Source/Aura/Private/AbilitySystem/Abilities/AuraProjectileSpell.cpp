@@ -13,7 +13,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-AAuraProjectile* UAuraProjectileSpell::SpawnProjectile()
+AAuraProjectile* UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {
 	// Check if we are the server
 	bool bIsServver = GetAvatarActorFromActorInfo()->HasAuthority();
@@ -22,17 +22,11 @@ AAuraProjectile* UAuraProjectileSpell::SpawnProjectile()
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FVector Direction = CombatInterface->GetForwardVector();
-		FRotator Rotation = CombatInterface->GetForwardVector().Rotation();
-		//Rotation.Pitch = 0.0f;
-
-		UE_LOG(LogTemp, Warning, TEXT("SpawnProjectile: %s"), *Direction.ToString());
-		
-		// Offset used to avoid projectile colliding with own actor
-		FVector Offset = Direction * ProjectileSpawnOffset;
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		Rotation.Pitch = 0.f;
 
 		FTransform SpawnTransform;
-		SpawnTransform.SetLocation(SocketLocation + Offset);
+		SpawnTransform.SetLocation(SocketLocation);
 		SpawnTransform.SetRotation(Rotation.Quaternion());
 
 		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(AuraProjectileClass,
