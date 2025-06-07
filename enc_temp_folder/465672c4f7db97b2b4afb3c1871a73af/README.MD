@@ -9,7 +9,7 @@ The game is built using **Unreal Engine 5.5**, featuring **MetaHuman characters*
 ---
 
 ## 🛠️ Features  
-- **Unreal Engine 5.6** is used exclusively as the game engine
+- **Unreal Engine 5.5.1** is used exclusively as the game engine
 - **MetaHuman characters** with custom clothing  
 - **Gameplay Ability System (GAS)** for abilities and attributes  
 - **Dynamic inventory system**  
@@ -26,17 +26,6 @@ The game is built using **Unreal Engine 5.5**, featuring **MetaHuman characters*
 - In Unreal Engine, set IDE to Visual Studio 2022 and Refresh Solution from Tools -> Refresh Visual Studio Solution (This is important to get intellisense working)
 - Set the Default Project to Aura and the Launch Mode to DebugGame Editor
 
-## Using Metahuman with retargeting ABP
-1. Create metuhuman with the 5.6 metahuman creator tool
-2. Update root class to be CBP_SandboxCharacter
-3. Ensure the Ability System has been configured inside the root of the Character
-4. Disable visibility of the source retargeter (the orange skeletal mesh)
-5. Ensure that you set Visibility Based Anim Tick Option to Always Tick Pose and Refresh Bones
-6. Update your game mode to use the new character
-7. Enjoy :)
-
-
-# Deprecated since the move to 5.6 - Will be removed in future commits
 ## 📦 How to Add Custom Clothing for MetaHumans  
 
 This section explains how to add **custom clothing to MetaHumans** using **MetaTailor** and then import them into Unreal Engine.  
