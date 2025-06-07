@@ -9,7 +9,10 @@
 #include "AuraGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/AuraAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include <AbilitySystem/AuraAbilitySystemLibrary.h>
+
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -31,7 +34,12 @@ AAuraEnemy::AAuraEnemy()
 void AAuraEnemy::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	AAuraAIController* LocalAIController = Cast<AAuraAIController>(NewController);
+
+	if (!HasAuthority()) return;
+	AAuraAIController* AuraAIController = Cast<AAuraAIController>(NewController);
+
+	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	AuraAIController->RunBehaviorTree(BehaviorTree);
 }
 
 
