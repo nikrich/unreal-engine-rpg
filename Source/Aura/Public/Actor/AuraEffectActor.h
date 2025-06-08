@@ -35,7 +35,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	bool bDestroyOnEffectRemoval = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	bool bDestroyOnEffectApplication = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	bool bApplyEffectsToEnemies = false;
 
 	// Apply / Remove Effects
 
