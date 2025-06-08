@@ -8,8 +8,6 @@ The game is built using **Unreal Engine 5.6**, featuring **MetaHuman characters*
 
 ---
 
-![Banner](docs/banner.png)
-
 ## 🛠️ Features  
 - **Unreal Engine 5.6** is used exclusively as the game engine
 - **MetaHuman characters** with custom clothing  
