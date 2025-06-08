@@ -115,10 +115,12 @@ void AAuraPlayerController::Sprint(const FInputActionValue& InputActionValue)
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	// When ability is used, cancel running
+	bAutoRunning = false;
+
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_RMB))
 	{
 		bTargeting = ThisActor ? true : false;
-		bAutoRunning = false;
 	}
 }
 
