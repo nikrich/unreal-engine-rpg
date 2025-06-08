@@ -97,6 +97,12 @@ public:
 
 	FGameplayTag Effects_HitReact;
 
+	// UI
+
+	FGameplayTag Message_HealthPotion;
+	FGameplayTag Message_HealthCrystal;
+	FGameplayTag Message_ManaPotion;
+	FGameplayTag Message_ManaCrystal;
 
 private:
 	static FAuraGameplayTags GameplayTags;

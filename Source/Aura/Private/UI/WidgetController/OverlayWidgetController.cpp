@@ -44,6 +44,13 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 				GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
 				
 				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+
+				if (!MessageTag.IsValid()) 
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Tag not found for tag 'Message'"));
+					return;
+				}
+
 				if (Tag.MatchesTag(MessageTag))
 				{
 					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
