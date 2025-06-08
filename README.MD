@@ -6,8 +6,6 @@ In **The Club at the Center of the World**, you play as a young man navigating a
 
 The game is built using **Unreal Engine 5.6**, featuring **MetaHuman characters**, a dynamic **Gameplay Ability System (GAS)**, and customizable outfits using **MetaTailor**.
 
----
-
 ![Banner](docs/banner.png)
 
 ## 🛠️ Features  
