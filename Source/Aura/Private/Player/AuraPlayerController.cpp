@@ -324,9 +324,9 @@ void AAuraPlayerController::CameraTrace()
 		{
 			AActor* HitActor = HitResult.GetActor();
 			PreviouslyHiddenActors.AddUnique(HitActor);
-			HitActor->SetActorHiddenInGame(true); // Hard toggle
+			//HitActor->SetActorHiddenInGame(true); // Hard toggle
 			// Disable Collisions
-			HitActor->SetActorEnableCollision(false);
+			//HitActor->SetActorEnableCollision(false);
 		}
 	}
 }

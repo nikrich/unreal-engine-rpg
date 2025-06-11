@@ -43,10 +43,11 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	if (!HasAuthority()) return;
-	AAuraAIController* AuraAIController = Cast<AAuraAIController>(NewController);
+	AIController = Cast<AAuraAIController>(NewController);
 
-	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
-	AuraAIController->RunBehaviorTree(BehaviorTree);
+	AIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	AIController->RunBehaviorTree(BehaviorTree);
+	AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
 }
 
 
@@ -125,6 +126,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0 : BaseWalkSpeed;
+	AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
 
 void AAuraEnemy::Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit)
