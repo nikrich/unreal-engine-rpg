@@ -48,6 +48,7 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	AIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 	AIController->RunBehaviorTree(BehaviorTree);
 	AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	AIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ECharacterClass::Bruiser);
 }
 
 
