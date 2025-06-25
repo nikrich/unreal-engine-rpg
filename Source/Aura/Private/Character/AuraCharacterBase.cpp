@@ -63,7 +63,7 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(FVector ImpactVecto
 	// If the hit was blocked, the force is halved
 	// If the hit was a critical hit, the force is doubled
 
-	float ForceMagnitude = 200000;
+	float ForceMagnitude = 500;
 	ForceMagnitude *= bBlocked ? 0.5f : 1.f;
 	ForceMagnitude *= bCriticalHit ? 2.f : 1.f;
 
