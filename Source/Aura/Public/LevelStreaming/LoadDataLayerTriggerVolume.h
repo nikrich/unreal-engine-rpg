@@ -34,4 +34,7 @@ public:
 
 private:
     UPROPERTY(VisibleAnywhere)
-    UBoxComponent* TriggerVolume;};
+    UBoxComponent* TriggerVolume;
+
+    void LoadDataLayer();
+};

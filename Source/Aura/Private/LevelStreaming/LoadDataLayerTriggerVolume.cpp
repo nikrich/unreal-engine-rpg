@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include <Character/AuraCharacter.h>
+#include <Kismet/GameplayStatics.h>
 
 ALoadDataLayerTriggerVolume::ALoadDataLayerTriggerVolume()
 {
@@ -30,15 +31,21 @@ void ALoadDataLayerTriggerVolume::OnOverlapBegin(UPrimitiveComponent* Overlapped
     // Only Allow the Main Character to Load Levels
     if (OtherActor && OtherActor->IsA<AAuraCharacter>())
     {
-        if (UDataLayerSubsystem* DataLayerSubsystem = GetWorld()->GetSubsystem<UDataLayerSubsystem>())
-        {
-            if (DataLayerAssetToActivate) {
-                DataLayerSubsystem->SetDataLayerInstanceRuntimeState(DataLayerAssetToActivate, EDataLayerRuntimeState::Activated);
-            }
+        // StartFade(1.0f);
+        LoadDataLayer();
+    }
+}
 
-			if (DataLayerAssetToDeactivate) {
-				DataLayerSubsystem->SetDataLayerInstanceRuntimeState(DataLayerAssetToDeactivate, EDataLayerRuntimeState::Unloaded);
-			}
+void ALoadDataLayerTriggerVolume::LoadDataLayer()
+{
+    if (UDataLayerSubsystem* DataLayerSubsystem = GetWorld()->GetSubsystem<UDataLayerSubsystem>())
+    {
+        if (DataLayerAssetToActivate) {
+            DataLayerSubsystem->SetDataLayerInstanceRuntimeState(DataLayerAssetToActivate, EDataLayerRuntimeState::Activated);
+        }
+
+        if (DataLayerAssetToDeactivate) {
+            DataLayerSubsystem->SetDataLayerInstanceRuntimeState(DataLayerAssetToDeactivate, EDataLayerRuntimeState::Unloaded);
         }
     }
 }

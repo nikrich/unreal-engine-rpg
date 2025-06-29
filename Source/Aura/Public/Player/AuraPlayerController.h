@@ -71,14 +71,34 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<class UInputAction> SprintAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> RotateCameraAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<class UInputAction> ZoomCameraAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	float Sensitivity = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UAuraInputConfig> InputConfig;
+
+	/*
+	 * Effects
+	 */
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TObjectPtr<class UNiagaraSystem> NiagaraMoveToEmitter;
+
+	/*
+	 * Combat
+	 */
+
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	FVector ForwardVector;
 
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	float LineTraceDistance = 2000.f;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	float Sensitivity = 5.f;
 
 	/*
 	 * Auto Run
@@ -96,6 +116,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
 
+	void HasStartedToRun();
+
 	void AutoRun();
 
 	/*
@@ -103,7 +125,9 @@ private:
 	 */
 
 	void Move(const struct FInputActionValue& InputActionValue);
-	void Look(const FInputActionValue& Value);
+	void RotateCameraStart(const FInputActionValue& Value);
+	void RotateCameraEnd(const FInputActionValue& Value);
+	void ZoomCamera(const FInputActionValue& Value);
 	void Jump(const struct FInputActionValue& InputActionValue);
 	void Sprint(const struct FInputActionValue& InputActionValue);
 
@@ -111,10 +135,46 @@ private:
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
 
-	void HasStartedToRun();
+	/*
+	 * Camera
+	 */
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UAuraInputConfig> InputConfig;
+	bool bIsRotatingCamera = false;
+	float CurrentYawSpeed = 0.0f;
+	float CurrentPitchSpeed = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float MaxZoom = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float MinZoom = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float ZoomSpeed = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	bool bInvertPitchRotation = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float MaxPitchRotation = 90.0f; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float MinPitchRotation = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float RotationDecayRate = 3.0f; // How fast rotation slows down
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float MaxRotationSpeed = 100.0f; // Degrees per second
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float RotationYawSpeed = 3.0f; // Degrees per second
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input - Camera Rotation")
+	float RotationPitchSpeed = 1.0f; // Degrees per second
+
+	FVector2D LastMousePosition;
+	void DoCameraRotation(float DeltaTime);
 
 	/*
 	 * Cursor Hits

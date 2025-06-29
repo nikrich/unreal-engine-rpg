@@ -1,4 +1,4 @@
-// Copyright Hungry Ghost
+﻿// Copyright Hungry Ghost
 
 
 #include "Player/AuraPlayerController.h"
@@ -17,6 +17,8 @@
 #include <Character/AuraCharacter.h>
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 
 /**
  * Constructor for the AuraPlayerController class.
@@ -38,6 +40,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	RestoreVisibility();
 	CameraTrace();
 	AutoRun();
+	DoCameraRotation(DeltaTime);
 }
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharcter, bool isBlockingHit, bool bIsCriticalHit)
@@ -95,8 +98,76 @@ void AAuraPlayerController::SetupInputComponent()
 
 	AuraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AAuraPlayerController::Jump);
 	AuraInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AAuraPlayerController::Sprint);
+	AuraInputComponent->BindAction(RotateCameraAction, ETriggerEvent::Started, this, &AAuraPlayerController::RotateCameraStart);
+	AuraInputComponent->BindAction(RotateCameraAction, ETriggerEvent::Completed, this, &AAuraPlayerController::RotateCameraEnd);
+	AuraInputComponent->BindAction(ZoomCameraAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::ZoomCamera);
 
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+}
+
+
+void AAuraPlayerController::RotateCameraStart(const FInputActionValue& Value)
+{
+	bIsRotatingCamera = true;
+	GetMousePosition(LastMousePosition.X, LastMousePosition.Y);
+}
+
+void AAuraPlayerController::RotateCameraEnd(const FInputActionValue& Value)
+{
+	bIsRotatingCamera = false;
+	CurrentYawSpeed = 0.0f; // Stop when mouse is released
+}
+
+void AAuraPlayerController::ZoomCamera(const FInputActionValue& Value)
+{
+	float ScrollDelta = Value.Get<float>();
+
+	if (AAuraCharacter* AuraChar = Cast<AAuraCharacter>(GetPawn()))
+	{
+		USpringArmComponent* SpringArm = AuraChar->GetCameraBoom();
+		if (SpringArm)
+		{
+			float NewTargetLength = SpringArm->TargetArmLength - ScrollDelta * ZoomSpeed;
+			SpringArm->TargetArmLength = FMath::Clamp(NewTargetLength, MaxZoom, MinZoom);
+		}
+	}
+}
+
+void AAuraPlayerController::DoCameraRotation(float DeltaTime)
+{
+	if (!bIsRotatingCamera) return;
+
+	FVector2D CurrentMousePos;
+	GetMousePosition(CurrentMousePos.X, CurrentMousePos.Y);
+
+	float MouseDeltaX = CurrentMousePos.X - LastMousePosition.X;
+	float MouseDeltaY = CurrentMousePos.Y - LastMousePosition.Y;
+
+	// Convert to speed: pixels/frame → degrees/second
+	float MouseYawSpeed = MouseDeltaX * RotationYawSpeed;
+	float MousePitchSpeed = MouseDeltaY * RotationPitchSpeed;
+
+	if (bInvertPitchRotation) {
+		MousePitchSpeed *= -1.f;
+	}
+
+	CurrentYawSpeed = FMath::Clamp(MouseYawSpeed, -MaxRotationSpeed, MaxRotationSpeed);
+	CurrentPitchSpeed = FMath::Clamp(MousePitchSpeed, -MaxRotationSpeed, MaxRotationSpeed);
+
+	// Apply yaw rotation
+	if (AAuraCharacter* AuraChar = Cast<AAuraCharacter>(GetPawn()))
+	{
+		if (USpringArmComponent* SpringArm = AuraChar->GetCameraBoom())
+		{
+			FRotator CurrentRot = SpringArm->GetRelativeRotation();
+			CurrentRot.Yaw += CurrentYawSpeed * DeltaTime;
+			CurrentRot.Pitch = FMath::Clamp(CurrentRot.Pitch + CurrentPitchSpeed * DeltaTime, MinPitchRotation, MaxPitchRotation); // Clamp pitch to avoid flipping
+			SpringArm->SetRelativeRotation(CurrentRot);
+		}
+	}
+
+	// Gradually decay speed if mouse isn't moving
+	CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, 0.0f, DeltaTime, RotationDecayRate);
 }
 
 void AAuraPlayerController::Jump(const FInputActionValue& InputActionValue)
@@ -160,7 +231,20 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					}
 
 					CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
-					DrawDebugSphere(GetWorld(), CachedDestination, 8.f, 8, FColor::Green, false, 0.5f);
+					
+					// Emit Niagara effect at the destination
+					check(NiagaraMoveToEmitter);
+					
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+						GetWorld(),
+						NiagaraMoveToEmitter,
+						CachedDestination,
+						FRotator::ZeroRotator,
+						FVector(1.0f),
+						true,
+						true
+					);
+
 					bAutoRunning = true;
 				}
 			}
@@ -227,6 +311,7 @@ UAuraAbilitySystemComponent* AAuraPlayerController::GetAuraAbilitySystemComponen
 void AAuraPlayerController::AutoRun()
 {
 	if (!bAutoRunning) return;
+
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
