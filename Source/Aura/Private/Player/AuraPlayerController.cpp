@@ -215,43 +215,48 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 	else
 	{
-		APawn* ControlledPawn = GetPawn();
-
-		if (FollowTime <= ShortPressThreshold && ControlledPawn)
+		if (AAuraCharacter* ControlledPawn = Cast<AAuraCharacter>(GetPawn()))
 		{
-			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
+			if (FollowTime <= ShortPressThreshold)
 			{
-				if (NavPath->PathPoints.Num() != 0)
+				if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
 				{
-					Spline->ClearSplinePoints();
-					for (const FVector& PointLoc : NavPath->PathPoints)
+					if (NavPath->PathPoints.Num() != 0)
 					{
-						Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
-						
+						Spline->ClearSplinePoints();
+						for (const FVector& PointLoc : NavPath->PathPoints)
+						{
+							Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+
+						}
+
+						auto MovementDistance = Spline->GetSplineLength();
+						// Set Gait based on how far the player needs to travel
+						ControlledPawn->SetGaitFromDistance(MovementDistance);
+
+						CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+
+						// Emit Niagara effect at the destination
+						check(NiagaraMoveToEmitter);
+
+						UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+							GetWorld(),
+							NiagaraMoveToEmitter,
+							CachedDestination,
+							FRotator::ZeroRotator,
+							FVector(1.0f),
+							true,
+							true
+						);
+
+						bAutoRunning = true;
 					}
-
-					CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
-					
-					// Emit Niagara effect at the destination
-					check(NiagaraMoveToEmitter);
-					
-					UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-						GetWorld(),
-						NiagaraMoveToEmitter,
-						CachedDestination,
-						FRotator::ZeroRotator,
-						FVector(1.0f),
-						true,
-						true
-					);
-
-					bAutoRunning = true;
 				}
 			}
-		}
 
-		FollowTime = 0.f;
-		bTargeting = false;
+			FollowTime = 0.f;
+			bTargeting = false;
+		}
 	}
 
 	if (GetAuraAbilitySystemComponent()) {
@@ -312,7 +317,7 @@ void AAuraPlayerController::AutoRun()
 {
 	if (!bAutoRunning) return;
 
-	if (APawn* ControlledPawn = GetPawn())
+	if (AAuraCharacter* ControlledPawn = Cast<AAuraCharacter>(GetPawn()))
 	{
 		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
 		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
@@ -322,6 +327,7 @@ void AAuraPlayerController::AutoRun()
 		if (DistanceToDestination <= AutoRunAcceptanceRadius)
 		{
 			bAutoRunning = false;
+			ControlledPawn->ResetGait();
 		}
 	}
 }
