@@ -112,6 +112,10 @@
 		{
 			"Name": "MetaHumanRuntime",
 			"Enabled": true
+		},
+		{
+			"Name": "ScriptableToolsEditorMode",
+			"Enabled": true
 		}
 	]
 }
