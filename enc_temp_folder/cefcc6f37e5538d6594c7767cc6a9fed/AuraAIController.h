@@ -8,7 +8,6 @@
 
 class UBlackboardComponent;
 class UBehaviorTreeComponent;
-class USplineComponent;
 
 /**
  * 
@@ -25,8 +24,5 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USplineComponent> Spline;
 
 };
