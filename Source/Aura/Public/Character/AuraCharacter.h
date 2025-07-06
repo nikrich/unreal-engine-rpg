@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/AuraCharacterBase.h"
-#include <Traversal/TraversalComponent.h>
 #include "AuraCharacter.generated.h"
 
 
@@ -40,21 +39,6 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EGait Gait = EGait::Run;
-
-	void ResetGait();
-	void SetGaitFromDistance(float Distance);
-
 private:
 	virtual void InitAbilityActorInfo() override;
-
-	UPROPERTY(EditDefaultsOnly)
-	EGait DefaultGait = EGait::Run;
-
-	UPROPERTY(EditDefaultsOnly)
-	float MinSprintDistance = 1500.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float MinRunDistance = 800.f;
 };

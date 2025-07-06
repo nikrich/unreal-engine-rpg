@@ -15,6 +15,14 @@ class UGameplayAbility;
 class UAnimMontage;
 class UTraversalComponent;
 
+UENUM(BlueprintType)
+enum class EGait : uint8
+{
+	Walk,
+	Run,
+	Sprint
+};
+
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
@@ -36,6 +44,16 @@ public:
 	virtual void MulticastHandleDeath(FVector ImpactVector, bool bBlocked, bool bCriticalHit);
 
 	virtual void Jump() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EGait Gait = EGait::Run;
+
+	/*
+	 * Movement
+	 */
+
+	void ResetGait();
+	void SetGaitFromDistance(float Distance);
 
 protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadonly, Category="Combat")
@@ -76,6 +94,13 @@ protected:
 	void AddCharacterAbilities();
 
 	/*
+	 * Movement
+	 */
+
+	UPROPERTY(EditDefaultsOnly)
+	EGait DefaultGait = EGait::Run;
+
+	/*
 	 * Dissolve Effects
 	 */ 
 
@@ -106,4 +131,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	TObjectPtr<USoundBase> DeathSoundCriticalHit;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MinSprintDistance = 1500.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MinRunDistance = 800.f;
 };

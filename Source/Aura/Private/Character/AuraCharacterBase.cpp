@@ -164,3 +164,20 @@ void AAuraCharacterBase::Dissolve()
 		StartWeaponDissolveTimeline(DynamicMatInst);
 	}
 }
+
+void AAuraCharacterBase::ResetGait()
+{
+	Gait = DefaultGait;
+}
+
+void AAuraCharacterBase::SetGaitFromDistance(float Distance)
+{
+	Gait = EGait::Walk;
+
+	if (Distance > MinSprintDistance) {
+		Gait = EGait::Sprint;
+	}
+	else if (Distance > MinRunDistance) {
+		Gait = EGait::Run;
+	}
+}

@@ -20,6 +20,7 @@ class AURA_API AAuraAIController : public AAIController
 	
 public:
 	AAuraAIController();
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 
@@ -28,5 +29,23 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bDebug = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void CalculatePath(FVector Location);
+
+private:
+	FVector CachedDestination = FVector::ZeroVector;
+	bool bAutoRunning = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MeleeAutoRunAcceptanceRadius = 100.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float RangedAutoRunAcceptanceRadius = 400.f;
+
+	float GetAutoRunAcceptanceRadius() const;
 
 };

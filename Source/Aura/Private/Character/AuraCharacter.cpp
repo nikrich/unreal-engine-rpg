@@ -66,11 +66,6 @@ FVector AAuraCharacter::GetForwardVector() const
 	return Super::GetForwardVector();
 }
 
-void AAuraCharacter::ResetGait()
-{
-	Gait = DefaultGait;
-}
-
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -93,16 +88,4 @@ void AAuraCharacter::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
-}
-
-void AAuraCharacter::SetGaitFromDistance(float Distance)
-{
-	Gait = EGait::Walk;
-
-	if (Distance > MinSprintDistance) {
-		Gait = EGait::Sprint;
-	}
-	else if (Distance > MinRunDistance) {
-		Gait = EGait::Run;
-	}
 }

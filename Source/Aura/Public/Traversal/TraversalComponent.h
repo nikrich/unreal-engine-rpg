@@ -19,14 +19,6 @@ enum class ETraversalActionType : uint8
 	Mantle
 };
 
-UENUM(BlueprintType)
-enum class EGait : uint8
-{
-	Walk,
-	Run,
-	Sprint
-};
-
 USTRUCT(BlueprintType)
 struct FTraversalInputType
 {

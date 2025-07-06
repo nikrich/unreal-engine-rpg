@@ -63,6 +63,8 @@ public:
 
 	virtual void Die(FVector ImpactVector, bool bBlocked, bool bCriticalHit) override;
 
+	ECharacterClass GetCharacterClass() const { return CharacterClass; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
