@@ -234,7 +234,9 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 						// Set Gait based on how far the player needs to travel
 						ControlledPawn->SetGaitFromDistance(MovementDistance);
 
-						CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+						if (NavPath->PathPoints.IsEmpty()) {
+							CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+						}
 
 						// Emit Niagara effect at the destination
 						check(NiagaraMoveToEmitter);
